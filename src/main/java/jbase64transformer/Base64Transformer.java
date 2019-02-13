@@ -47,7 +47,7 @@ public final class Base64Transformer {
 				continue;
 			}
 			out.write(decoder.decode(sb.toString()));
-			sb = new StringBuilder();
+			sb.delete(0, groupSize);
 		}
 		out.flush();
 	}
