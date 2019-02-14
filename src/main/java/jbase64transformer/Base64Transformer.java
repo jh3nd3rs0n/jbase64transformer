@@ -198,8 +198,8 @@ public final class Base64Transformer {
 					try {
 						in = new FileInputStream(file);
 					} catch (FileNotFoundException e) {
-						System.err.printf("%s: %s%n%s%n", 
-								programName, e.toString(), suggestion);
+						System.err.printf("%s: %s%n", 
+								programName, e.toString());
 						System.exit(-1);
 					}
 				}
@@ -212,7 +212,6 @@ public final class Base64Transformer {
 				decode(reader, System.out, ignoreGarbage);
 			} catch (IOException e) {
 				System.err.printf("%s: %s%n", programName, e.toString());
-				e.printStackTrace(System.err);
 				System.exit(-1);
 			}
 		} else {
@@ -221,7 +220,6 @@ public final class Base64Transformer {
 				encode(in, writer, numOfColumnsLimit);
 			} catch (IOException e) {
 				System.err.printf("%s: %s%n", programName, e.toString());
-				e.printStackTrace(System.err);
 				System.exit(-1);
 			}
 		}
