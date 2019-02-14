@@ -11,6 +11,7 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Arrays;
+import java.util.Base64;
 
 import argmatey.ArgsParser;
 import argmatey.GnuLongOption;
@@ -32,7 +33,7 @@ public final class Base64Transformer {
 		String whitespaceNewlines = "\r\n";
 		final int groupSize = 4;
 		StringBuilder sb = new StringBuilder();
-		java.util.Base64.Decoder decoder = java.util.Base64.getDecoder();
+		Base64.Decoder decoder = Base64.getDecoder();
 		while (true) {
 			int c = reader.read();
 			if (c == -1) { break; }
@@ -57,13 +58,18 @@ public final class Base64Transformer {
 			final Writer writer,
 			final int numOfColumnsLimit) throws IOException {
 		final int groupSize = 3;
-		java.util.Base64.Encoder encoder = java.util.Base64.getEncoder();
+		Base64.Encoder encoder = Base64.getEncoder();
 		int numOfColumns = 0;
 		String lineSeparator = System.getProperty("line.separator");
 		while (true) {
 			byte[] b = new byte[groupSize];
 			int newLength = in.read(b);
-			if (newLength == -1) { break; }
+			if (newLength == -1) {
+				if (numOfColumns < numOfColumnsLimit) {
+					writer.write(lineSeparator);
+				}
+				break; 
+			}
 			b = Arrays.copyOf(b, newLength);
 			String encoded = encoder.encodeToString(b);
 			if (numOfColumnsLimit > 0) {
@@ -79,7 +85,6 @@ public final class Base64Transformer {
 			}
 			writer.write(encoded);
 		}
-		writer.write(lineSeparator);
 		writer.flush();
 	}
 	
