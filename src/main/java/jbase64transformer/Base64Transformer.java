@@ -18,7 +18,7 @@ import argmatey.GnuLongOption;
 import argmatey.Option;
 import argmatey.OptionArgSpec;
 import argmatey.Options;
-import argmatey.ParseResult;
+import argmatey.ParseResultHolder;
 import argmatey.PosixOption;
 import argmatey.StringConverter;
 
@@ -156,15 +156,15 @@ public final class Base64Transformer {
 		int numOfColumnsLimit = defaultNumOfColumnsLimit;
 		InputStream in = null;
 		while (argsParser.hasNext()) {
-			ParseResult parseResult = null;
+			ParseResultHolder parseResultHolder = null;
 			try { 
-				parseResult = argsParser.parseNext(); 
+				parseResultHolder = argsParser.parseNext(); 
 			} catch (RuntimeException e) {
 				System.err.printf("%s: %s%n%s%n", 
 						programName, e.toString(), suggestion);
 				System.exit(-1);
 			}
-			if (parseResult.hasOptionFrom(helpOption)) {
+			if (parseResultHolder.hasOptionFrom(helpOption)) {
 				System.out.printf("Usage: %s [OPTION]... [FILE]%n", 
 						programName);
 				System.out.printf("Base64 encode or decode FILE, or standard "
@@ -175,22 +175,22 @@ public final class Base64Transformer {
 						+ "standard input.%n");
 				return;
 			}
-			if (parseResult.hasOptionFrom(versionOption)) {
+			if (parseResultHolder.hasOptionFrom(versionOption)) {
 				System.out.printf("%s %s%n", programName, programVersion);
 				return;
 			}
-			if (parseResult.hasOptionFrom(decodeOption)) {
+			if (parseResultHolder.hasOptionFrom(decodeOption)) {
 				decode = true;
 			}
-			if (parseResult.hasOptionFrom(ignoreGarbageOption)) {
+			if (parseResultHolder.hasOptionFrom(ignoreGarbageOption)) {
 				ignoreGarbage = true;
 			}
-			if (parseResult.hasOptionFrom(wrapOption)) {
-				numOfColumnsLimit = parseResult.getOptionArg().getTypeValue(
+			if (parseResultHolder.hasOptionFrom(wrapOption)) {
+				numOfColumnsLimit = parseResultHolder.getOptionArg().getTypeValue(
 						Integer.class).intValue();
 			}
-			if (parseResult.hasNonparsedArg()) {
-				String arg = parseResult.getNonparsedArg();
+			if (parseResultHolder.hasNonparsedArg()) {
+				String arg = parseResultHolder.getNonparsedArg();
 				if (in != null) {
 					System.err.printf("%s: extra operand '%s'%n%s%n", 
 							programName, arg, suggestion);
