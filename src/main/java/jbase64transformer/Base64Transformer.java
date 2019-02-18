@@ -28,17 +28,18 @@ public final class Base64Transformer {
 			final Reader reader, 
 			final OutputStream out, 
 			final boolean ignoreGarbage) throws IOException {
-		String base64Alphabet = 
+		String base64AlphabetChars = 
 				"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-		String whitespaceNewlines = "\r\n";
+		String acceptedWhitespaceChars = "\r\n";
 		final int groupSize = 4;
 		StringBuilder sb = new StringBuilder();
 		Base64.Decoder decoder = Base64.getDecoder();
 		while (true) {
 			int c = reader.read();
 			if (c == -1) { break; }
-			if (base64Alphabet.indexOf(c) == -1) {
-				if (whitespaceNewlines.indexOf(c) == -1 && !ignoreGarbage) {
+			if (base64AlphabetChars.indexOf(c) == -1 
+					&& acceptedWhitespaceChars.indexOf(c) == -1) {
+				if (!ignoreGarbage) {
 					throw new IOException("non-alphabet character found");
 				}
 				continue;
@@ -65,8 +66,10 @@ public final class Base64Transformer {
 			byte[] b = new byte[groupSize];
 			int newLength = in.read(b);
 			if (newLength == -1) {
-				if (numOfColumns < numOfColumnsLimit) {
-					writer.write(lineSeparator);
+				if (numOfColumnsLimit > 0) {
+					if (numOfColumns < numOfColumnsLimit) {
+						writer.write(lineSeparator);
+					}
 				}
 				break; 
 			}
