@@ -22,77 +22,11 @@ import argmatey.ParseResultHolder;
 import argmatey.PosixOption;
 import argmatey.StringConverter;
 
-public final class Base64Transformer {
+public enum Base64Transformer {
 	
-	private static void decode(
-			final Reader reader, 
-			final OutputStream out, 
-			final boolean ignoreGarbage) throws IOException {
-		String base64AlphabetChars = 
-				"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-		String acceptedWhitespaceChars = "\r\n";
-		final int groupSize = 4;
-		StringBuilder sb = new StringBuilder();
-		Base64.Decoder decoder = Base64.getDecoder();
-		while (true) {
-			int c = reader.read();
-			if (c == -1) { break; }
-			if (base64AlphabetChars.indexOf(c) == -1 
-					&& acceptedWhitespaceChars.indexOf(c) == -1) {
-				if (!ignoreGarbage) {
-					throw new IOException("non-alphabet character found");
-				}
-				continue;
-			}
-			sb.append((char) c);
-			if (sb.length() < groupSize) {
-				continue;
-			}
-			out.write(decoder.decode(sb.toString()));
-			sb.delete(0, groupSize);
-		}
-		out.flush();
-	}
-	
-	private static void encode(
-			final InputStream in,
-			final Writer writer,
-			final int numOfColumnsLimit) throws IOException {
-		final int groupSize = 3;
-		Base64.Encoder encoder = Base64.getEncoder();
-		int numOfColumns = 0;
-		String lineSeparator = System.getProperty("line.separator");
-		while (true) {
-			byte[] b = new byte[groupSize];
-			int newLength = in.read(b);
-			if (newLength == -1) {
-				if (numOfColumnsLimit > 0) {
-					if (numOfColumns < numOfColumnsLimit) {
-						writer.write(lineSeparator);
-					}
-				}
-				break; 
-			}
-			b = Arrays.copyOf(b, newLength);
-			String encoded = encoder.encodeToString(b);
-			if (numOfColumnsLimit > 0) {
-				int encodedLength = encoded.length();
-				numOfColumns += encodedLength;
-				if (numOfColumns >= numOfColumnsLimit) {
-					int diff = numOfColumns - numOfColumnsLimit;
-					StringBuilder sb = new StringBuilder(encoded);
-					sb.insert(encodedLength - diff, lineSeparator);
-					encoded = sb.toString();
-					numOfColumns = diff;
-				}
-			}
-			writer.write(encoded);
-		}
-		writer.flush();
-	}
-	
+	INSTANCE;
+		
 	public static void main(final String[] args) {
-		String lineSeparator = System.getProperty("line.separator");
 		Option decodeOption = new PosixOption.Builder('d')
 				.doc("decode data")
 				.otherBuilders(new GnuLongOption.Builder("decode"))
@@ -102,9 +36,9 @@ public final class Base64Transformer {
 				.otherBuilders(new GnuLongOption.Builder("ignore-garbage"))
 				.build();
 		Option wrapOption = new PosixOption.Builder('w')
-				.doc("wrap encoded lines after COLS character (default 76)."
-						+ lineSeparator 
-						+ "      Use 0 to disable line wrapping")
+				.doc(String.format(
+						"wrap encoded lines after COLS character (default 76)." 
+						+ "%n      Use 0 to disable line wrapping"))
 				.optionArgSpec(new OptionArgSpec.Builder()
 						.name("COLS")
 						.stringConverter(new StringConverter() {
@@ -214,10 +148,11 @@ public final class Base64Transformer {
 			}
 		}
 		if (in == null) { in = System.in; }
+		Base64Transformer base64Transformer = Base64Transformer.INSTANCE;
 		if (decode) {
 			Reader reader = new InputStreamReader(in);
 			try {
-				decode(reader, System.out, ignoreGarbage);
+				base64Transformer.decode(reader, System.out, ignoreGarbage);
 			} catch (IOException e) {
 				System.err.printf("%s: %s%n", programName, e.toString());
 				System.exit(-1);
@@ -225,11 +160,88 @@ public final class Base64Transformer {
 		} else {
 			Writer writer = new OutputStreamWriter(System.out);
 			try {
-				encode(in, writer, numOfColumnsLimit);
+				base64Transformer.encode(in, writer, numOfColumnsLimit);
 			} catch (IOException e) {
 				System.err.printf("%s: %s%n", programName, e.toString());
 				System.exit(-1);
 			}
 		}
+	}
+	
+	public void decode(
+			final Reader reader, 
+			final OutputStream out, 
+			final boolean ignoreGarbage) throws IOException {
+		String base64AlphabetChars = 
+				"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+		String acceptedWhitespaceChars = "\r\n";
+		final int groupSize = 4;
+		StringBuilder sb = new StringBuilder();
+		Base64.Decoder decoder = Base64.getDecoder();
+		while (true) {
+			int c = reader.read();
+			if (c == -1) { break; }
+			if (base64AlphabetChars.indexOf(c) == -1) {
+				if (acceptedWhitespaceChars.indexOf(c) == -1 
+						&& !ignoreGarbage) {
+					throw new IOException("non-alphabet character found");
+				}
+				continue;
+			}
+			sb.append((char) c);
+			if (sb.length() < groupSize) {
+				continue;
+			}
+			out.write(decoder.decode(sb.toString()));
+			sb.delete(0, groupSize);
+		}
+		out.flush();
+	}
+	
+	public void encode(
+			final InputStream in,
+			final Writer writer,
+			final int numOfColumnsLimit) throws IOException {
+		if (numOfColumnsLimit < 0) {
+			throw new IllegalArgumentException(String.format(
+					"integer must be between %s (inclusive) and %s (inclusive)", 
+					0, Integer.MAX_VALUE));
+		}
+		final int groupSize = 3;
+		Base64.Encoder encoder = Base64.getEncoder();
+		int numOfColumns = 0;
+		String lineSeparator = System.getProperty("line.separator");
+		while (true) {
+			byte[] b = new byte[groupSize];
+			int newLength = in.read(b);
+			if (newLength == -1) {
+				if (numOfColumnsLimit > 0) {
+					if (numOfColumns < numOfColumnsLimit) {
+						writer.write(lineSeparator);
+					}
+				}
+				break; 
+			}
+			b = Arrays.copyOf(b, newLength);
+			String encoded = encoder.encodeToString(b);
+			if (numOfColumnsLimit > 0) {
+				int encodedLength = encoded.length();
+				numOfColumns += encodedLength;
+				if (numOfColumns >= numOfColumnsLimit) {
+					int diff = numOfColumns - numOfColumnsLimit;
+					StringBuilder sb = new StringBuilder(encoded);
+					sb.insert(encodedLength - diff, lineSeparator);
+					encoded = sb.toString();
+					numOfColumns = diff;
+				}
+			}
+			writer.write(encoded);
+		}
+		writer.flush();
+	}
+	
+	@Override
+	public String toString() {
+		return Base64Transformer.class.getSimpleName();
 	}
 }
