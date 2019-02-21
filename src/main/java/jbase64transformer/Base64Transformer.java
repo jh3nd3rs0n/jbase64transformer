@@ -25,17 +25,22 @@ import argmatey.StringConverter;
 public enum Base64Transformer {
 	
 	INSTANCE;
+	
+	public static final class Base64TransformerOptions {
 		
-	public static void main(final String[] args) {
-		Option decodeOption = new PosixOption.Builder('d')
+		public final Option decodeOption = new PosixOption.Builder('d')
 				.doc("decode data")
+				.ordinal(0)
 				.otherBuilders(new GnuLongOption.Builder("decode"))
 				.build();
-		Option ignoreGarbageOption = new PosixOption.Builder('i')
+		
+		public final Option ignoreGarbageOption = new PosixOption.Builder('i')
 				.doc("when decoding, ignore non-alphabet characters")
+				.ordinal(1)
 				.otherBuilders(new GnuLongOption.Builder("ignore-garbage"))
 				.build();
-		Option wrapOption = new PosixOption.Builder('w')
+		
+		public final Option wrapOption = new PosixOption.Builder('w')
 				.doc(String.format(
 						"wrap encoded lines after COLS character (default 76)." 
 						+ "%n      Use 0 to disable line wrapping"))
@@ -66,27 +71,33 @@ public enum Base64Transformer {
 						})
 						.type(Integer.class)
 						.build())
+				.ordinal(2)
 				.otherBuilders(new GnuLongOption.Builder("wrap"))
 				.build();
-		Option helpOption = new GnuLongOption.Builder("help")
+		
+		public final Option helpOption = new GnuLongOption.Builder("help")
 				.doc("display this help and exit")
+				.ordinal(3)
 				.special(true)
 				.build();
-		Option versionOption = new GnuLongOption.Builder("version")
+		
+		public final Option versionOption = new GnuLongOption.Builder("version")
 				.doc("display version information and exit")
+				.ordinal(4)
 				.special(true)
 				.build();
-		Options options = new Options(
-				decodeOption, 
-				ignoreGarbageOption, 
-				wrapOption, 
-				helpOption, 
-				versionOption);
+		
+	}
+	
+	public static void main(final String[] args) {
+		Base64TransformerOptions base64TransformerOptions = 
+				new Base64TransformerOptions(); 
+		Options options = Options.ofFieldValuesFrom(base64TransformerOptions);
 		ArgsParser argsParser = ArgsParser.newInstance(args, options, false);
 		String programName = Base64Transformer.class.getName();
 		String programVersion = "1.0";
 		String suggestion = String.format("Try '%s %s' for more information", 
-				programName, helpOption);
+				programName, base64TransformerOptions.helpOption.getUsage());
 		boolean decode = false;
 		boolean ignoreGarbage = false;
 		final int defaultNumOfColumnsLimit = 76;
@@ -101,7 +112,8 @@ public enum Base64Transformer {
 						programName, e.toString(), suggestion);
 				System.exit(-1);
 			}
-			if (parseResultHolder.hasOptionFrom(helpOption)) {
+			if (parseResultHolder.hasOptionFrom(
+					base64TransformerOptions.helpOption)) {
 				System.out.printf("Usage: %s [OPTION]... [FILE]%n", 
 						programName);
 				System.out.printf("Base64 encode or decode FILE, or standard "
@@ -112,17 +124,21 @@ public enum Base64Transformer {
 						+ "standard input.%n");
 				return;
 			}
-			if (parseResultHolder.hasOptionFrom(versionOption)) {
+			if (parseResultHolder.hasOptionFrom(
+					base64TransformerOptions.versionOption)) {
 				System.out.printf("%s %s%n", programName, programVersion);
 				return;
 			}
-			if (parseResultHolder.hasOptionFrom(decodeOption)) {
+			if (parseResultHolder.hasOptionFrom(
+					base64TransformerOptions.decodeOption)) {
 				decode = true;
 			}
-			if (parseResultHolder.hasOptionFrom(ignoreGarbageOption)) {
+			if (parseResultHolder.hasOptionFrom(
+					base64TransformerOptions.ignoreGarbageOption)) {
 				ignoreGarbage = true;
 			}
-			if (parseResultHolder.hasOptionFrom(wrapOption)) {
+			if (parseResultHolder.hasOptionFrom(
+					base64TransformerOptions.wrapOption)) {
 				numOfColumnsLimit = parseResultHolder.getOptionArg().getTypeValue(
 						Integer.class).intValue();
 			}
