@@ -28,19 +28,20 @@ public enum Base64Transformer {
 	
 	public static final class Base64TransformerOptions {
 		
-		public final Option decodeOption = new PosixOption.Builder('d')
+		public static final Option DECODE_OPTION = new PosixOption.Builder('d')
 				.doc("decode data")
 				.ordinal(0)
 				.otherBuilders(new GnuLongOption.Builder("decode"))
 				.build();
 		
-		public final Option ignoreGarbageOption = new PosixOption.Builder('i')
+		public static final Option IGNORE_GARBAGE_OPTION = 
+				new PosixOption.Builder('i')
 				.doc("when decoding, ignore non-alphabet characters")
 				.ordinal(1)
 				.otherBuilders(new GnuLongOption.Builder("ignore-garbage"))
 				.build();
 		
-		public final Option wrapOption = new PosixOption.Builder('w')
+		public static final Option WRAP_OPTION = new PosixOption.Builder('w')
 				.doc(String.format(
 						"wrap encoded lines after COLS character (default 76)." 
 						+ "%n      Use 0 to disable line wrapping"))
@@ -75,29 +76,31 @@ public enum Base64Transformer {
 				.otherBuilders(new GnuLongOption.Builder("wrap"))
 				.build();
 		
-		public final Option helpOption = new GnuLongOption.Builder("help")
+		public static final Option HELP_OPTION = new GnuLongOption.Builder(
+				"help")
 				.doc("display this help and exit")
 				.ordinal(3)
 				.special(true)
 				.build();
 		
-		public final Option versionOption = new GnuLongOption.Builder("version")
+		public static final Option VERSION_OPTION = new GnuLongOption.Builder(
+				"version")
 				.doc("display version information and exit")
 				.ordinal(4)
 				.special(true)
 				.build();
 		
+		private Base64TransformerOptions() { }
+		
 	}
 	
 	public static void main(final String[] args) {
-		Base64TransformerOptions base64TransformerOptions = 
-				new Base64TransformerOptions(); 
-		Options options = Options.ofFieldValuesFrom(base64TransformerOptions);
+		Options options = Options.newInstance(Base64TransformerOptions.class);
 		ArgsParser argsParser = ArgsParser.newInstance(args, options, false);
 		String programName = Base64Transformer.class.getName();
 		String programVersion = "1.0";
 		String suggestion = String.format("Try '%s %s' for more information", 
-				programName, base64TransformerOptions.helpOption.getUsage());
+				programName, Base64TransformerOptions.HELP_OPTION.getUsage());
 		boolean decode = false;
 		boolean ignoreGarbage = false;
 		final int defaultNumOfColumnsLimit = 76;
@@ -113,7 +116,7 @@ public enum Base64Transformer {
 				System.exit(-1);
 			}
 			if (parseResultHolder.hasOptionFrom(
-					base64TransformerOptions.helpOption)) {
+					Base64TransformerOptions.HELP_OPTION)) {
 				System.out.printf("Usage: %s [OPTION]... [FILE]%n", 
 						programName);
 				System.out.printf("Base64 encode or decode FILE, or standard "
@@ -125,22 +128,23 @@ public enum Base64Transformer {
 				return;
 			}
 			if (parseResultHolder.hasOptionFrom(
-					base64TransformerOptions.versionOption)) {
+					Base64TransformerOptions.VERSION_OPTION)) {
 				System.out.printf("%s %s%n", programName, programVersion);
 				return;
 			}
 			if (parseResultHolder.hasOptionFrom(
-					base64TransformerOptions.decodeOption)) {
+					Base64TransformerOptions.DECODE_OPTION)) {
 				decode = true;
 			}
 			if (parseResultHolder.hasOptionFrom(
-					base64TransformerOptions.ignoreGarbageOption)) {
+					Base64TransformerOptions.IGNORE_GARBAGE_OPTION)) {
 				ignoreGarbage = true;
 			}
 			if (parseResultHolder.hasOptionFrom(
-					base64TransformerOptions.wrapOption)) {
-				numOfColumnsLimit = parseResultHolder.getOptionArg().getTypeValue(
-						Integer.class).intValue();
+					Base64TransformerOptions.WRAP_OPTION)) {
+				numOfColumnsLimit = 
+						parseResultHolder.getOptionArg().getTypeValue(
+								Integer.class).intValue();
 			}
 			if (parseResultHolder.hasNonparsedArg()) {
 				String arg = parseResultHolder.getNonparsedArg();
