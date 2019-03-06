@@ -26,7 +26,7 @@ public enum Base64Transformer {
 	
 	INSTANCE;
 	
-	public static final class Base64TransformerOptions {
+	public static final class Base64TransformerOptions extends Options {
 		
 		public static final Option DECODE_OPTION = new PosixOption.Builder('d')
 				.doc("decode data")
@@ -90,12 +90,10 @@ public enum Base64Transformer {
 				.special(true)
 				.build();
 		
-		private Base64TransformerOptions() { }
-		
 	}
 	
 	public static void main(final String[] args) {
-		Options options = Options.newInstance(Base64TransformerOptions.class);
+		Options options = new Base64TransformerOptions();
 		ArgsParser argsParser = ArgsParser.newInstance(args, options, false);
 		String programName = Base64Transformer.class.getName();
 		String programVersion = "1.0";
@@ -115,8 +113,7 @@ public enum Base64Transformer {
 						programName, e.toString(), suggestion);
 				System.exit(-1);
 			}
-			if (parseResultHolder.hasOptionFrom(
-					Base64TransformerOptions.HELP_OPTION)) {
+			if (parseResultHolder.has(Base64TransformerOptions.HELP_OPTION)) {
 				System.out.printf("Usage: %s [OPTION]... [FILE]%n", 
 						programName);
 				System.out.printf("Base64 encode or decode FILE, or standard "
@@ -127,20 +124,20 @@ public enum Base64Transformer {
 						+ "standard input.%n");
 				return;
 			}
-			if (parseResultHolder.hasOptionFrom(
+			if (parseResultHolder.has(
 					Base64TransformerOptions.VERSION_OPTION)) {
 				System.out.printf("%s %s%n", programName, programVersion);
 				return;
 			}
-			if (parseResultHolder.hasOptionFrom(
+			if (parseResultHolder.hasOrHasOptionFrom(
 					Base64TransformerOptions.DECODE_OPTION)) {
 				decode = true;
 			}
-			if (parseResultHolder.hasOptionFrom(
+			if (parseResultHolder.hasOrHasOptionFrom(
 					Base64TransformerOptions.IGNORE_GARBAGE_OPTION)) {
 				ignoreGarbage = true;
 			}
-			if (parseResultHolder.hasOptionFrom(
+			if (parseResultHolder.hasOrHasOptionFrom(
 					Base64TransformerOptions.WRAP_OPTION)) {
 				numOfColumnsLimit = 
 						parseResultHolder.getOptionArg().getTypeValue(
