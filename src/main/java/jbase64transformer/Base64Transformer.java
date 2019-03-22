@@ -113,6 +113,20 @@ public enum Base64Transformer {
 						programName, e.toString(), suggestion);
 				System.exit(-1);
 			}
+			if (parseResultHolder.hasOrHasOptionFrom(
+					Base64TransformerOptions.DECODE_OPTION)) {
+				decode = true;
+			}
+			if (parseResultHolder.hasOrHasOptionFrom(
+					Base64TransformerOptions.IGNORE_GARBAGE_OPTION)) {
+				ignoreGarbage = true;
+			}
+			if (parseResultHolder.hasOrHasOptionFrom(
+					Base64TransformerOptions.WRAP_OPTION)) {
+				numOfColumnsLimit = 
+						parseResultHolder.getOptionArg().getTypeValue(
+								Integer.class).intValue();
+			}
 			if (parseResultHolder.has(Base64TransformerOptions.HELP_OPTION)) {
 				System.out.printf("Usage: %s [OPTION]... [FILE]%n", 
 						programName);
@@ -128,20 +142,6 @@ public enum Base64Transformer {
 					Base64TransformerOptions.VERSION_OPTION)) {
 				System.out.printf("%s %s%n", programName, programVersion);
 				return;
-			}
-			if (parseResultHolder.hasOrHasOptionFrom(
-					Base64TransformerOptions.DECODE_OPTION)) {
-				decode = true;
-			}
-			if (parseResultHolder.hasOrHasOptionFrom(
-					Base64TransformerOptions.IGNORE_GARBAGE_OPTION)) {
-				ignoreGarbage = true;
-			}
-			if (parseResultHolder.hasOrHasOptionFrom(
-					Base64TransformerOptions.WRAP_OPTION)) {
-				numOfColumnsLimit = 
-						parseResultHolder.getOptionArg().getTypeValue(
-								Integer.class).intValue();
 			}
 			if (parseResultHolder.hasNonparsedArg()) {
 				String arg = parseResultHolder.getNonparsedArg();
@@ -197,7 +197,13 @@ public enum Base64Transformer {
 		Base64.Decoder decoder = Base64.getDecoder();
 		while (true) {
 			int c = reader.read();
-			if (c == -1) { break; }
+			if (c == -1) {
+				if (sb.length() > 0) {
+					out.write(decoder.decode(sb.toString()));
+					sb.delete(0, groupSize);
+				}
+				break; 
+			}
 			if (base64AlphabetChars.indexOf(c) == -1) {
 				if (acceptedWhitespaceChars.indexOf(c) == -1 
 						&& !ignoreGarbage) {
