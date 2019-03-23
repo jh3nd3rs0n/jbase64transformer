@@ -189,18 +189,18 @@ public enum Base64Transformer {
 			final Reader reader, 
 			final OutputStream out, 
 			final boolean ignoreGarbage) throws IOException {
+		StringBuilder sb = new StringBuilder();
+		Base64.Decoder decoder = Base64.getDecoder();
 		String base64AlphabetChars = 
 				"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 		String acceptedWhitespaceChars = "\r\n";
 		final int groupSize = 4;
-		StringBuilder sb = new StringBuilder();
-		Base64.Decoder decoder = Base64.getDecoder();
 		while (true) {
 			int c = reader.read();
 			if (c == -1) {
 				if (sb.length() > 0) {
 					out.write(decoder.decode(sb.toString()));
-					sb.delete(0, groupSize);
+					sb.delete(0, sb.length());
 				}
 				break; 
 			}
@@ -231,9 +231,9 @@ public enum Base64Transformer {
 					0, Integer.MAX_VALUE));
 		}
 		final int groupSize = 3;
-		Base64.Encoder encoder = Base64.getEncoder();
 		int numOfColumns = 0;
 		String lineSeparator = System.getProperty("line.separator");
+		Base64.Encoder encoder = Base64.getEncoder();
 		while (true) {
 			byte[] b = new byte[groupSize];
 			int newLength = in.read(b);
