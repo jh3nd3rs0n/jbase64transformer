@@ -89,6 +89,8 @@ public enum Base64Transformer {
 				.ordinal(4)
 				.special(true)
 				.build();
+	
+		public Base64TransformerOptions() { }
 		
 	}
 	
@@ -113,21 +115,18 @@ public enum Base64Transformer {
 						programName, e.toString(), suggestion);
 				System.exit(-1);
 			}
-			if (parseResultHolder.hasOrHasOptionFrom(
-					Base64TransformerOptions.DECODE_OPTION)) {
+			if (parseResultHolder.hasOptionOfAnyOf("-d", "--decode")) {
 				decode = true;
 			}
-			if (parseResultHolder.hasOrHasOptionFrom(
-					Base64TransformerOptions.IGNORE_GARBAGE_OPTION)) {
+			if (parseResultHolder.hasOptionOfAnyOf("-i", "--ignore-garbage")) {
 				ignoreGarbage = true;
 			}
-			if (parseResultHolder.hasOrHasOptionFrom(
-					Base64TransformerOptions.WRAP_OPTION)) {
+			if (parseResultHolder.hasOptionOfAnyOf("-w", "--wrap")) {
 				numOfColumnsLimit = 
 						parseResultHolder.getOptionArg().getTypeValue(
 								Integer.class).intValue();
 			}
-			if (parseResultHolder.has(Base64TransformerOptions.HELP_OPTION)) {
+			if (parseResultHolder.hasOptionOf("--help")) {
 				System.out.printf("Usage: %s [OPTION]... [FILE]%n", 
 						programName);
 				System.out.printf("Base64 encode or decode FILE, or standard "
@@ -138,8 +137,7 @@ public enum Base64Transformer {
 						+ "standard input.%n");
 				return;
 			}
-			if (parseResultHolder.has(
-					Base64TransformerOptions.VERSION_OPTION)) {
+			if (parseResultHolder.hasOptionOf("--version")) {
 				System.out.printf("%s %s%n", programName, programVersion);
 				return;
 			}
