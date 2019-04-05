@@ -70,7 +70,6 @@ public enum Base64Transformer {
 							}
 							
 						})
-						.type(Integer.class)
 						.build())
 				.ordinal(2)
 				.otherBuilders(new GnuLongOption.Builder("wrap"))
@@ -105,7 +104,7 @@ public enum Base64Transformer {
 		boolean ignoreGarbage = false;
 		final int defaultNumOfColumnsLimit = 76;
 		int numOfColumnsLimit = defaultNumOfColumnsLimit;
-		InputStream in = null;
+		InputStream in = System.in;
 		while (argsParser.hasNext()) {
 			ParseResultHolder parseResultHolder = null;
 			try { 
@@ -148,9 +147,7 @@ public enum Base64Transformer {
 							programName, arg, suggestion);
 					System.exit(-1);
 				}
-				if (arg.equals("-")) {
-					in = System.in;
-				} else {
+				if (!arg.equals("-")) {
 					File file = new File(arg);
 					try {
 						in = new FileInputStream(file);
@@ -162,7 +159,6 @@ public enum Base64Transformer {
 				}
 			}
 		}
-		if (in == null) { in = System.in; }
 		Base64Transformer base64Transformer = Base64Transformer.INSTANCE;
 		if (decode) {
 			Reader reader = new InputStreamReader(in);
@@ -237,7 +233,7 @@ public enum Base64Transformer {
 			int newLength = in.read(b);
 			if (newLength == -1) {
 				if (numOfColumnsLimit > 0) {
-					if (numOfColumns < numOfColumnsLimit) {
+					if (numOfColumns > 0 && numOfColumns < numOfColumnsLimit) {
 						writer.write(lineSeparator);
 					}
 				}
@@ -246,15 +242,15 @@ public enum Base64Transformer {
 			b = Arrays.copyOf(b, newLength);
 			String encoded = encoder.encodeToString(b);
 			if (numOfColumnsLimit > 0) {
-				int encodedLength = encoded.length();
-				numOfColumns += encodedLength;
-				if (numOfColumns >= numOfColumnsLimit) {
-					int diff = numOfColumns - numOfColumnsLimit;
-					StringBuilder sb = new StringBuilder(encoded);
-					sb.insert(encodedLength - diff, lineSeparator);
-					encoded = sb.toString();
-					numOfColumns = diff;
+				StringBuilder sb = new StringBuilder();
+				for (char c : encoded.toCharArray()) {
+					sb.append(c);
+					if (++numOfColumns == numOfColumnsLimit) {
+						sb.append(lineSeparator);
+						numOfColumns = 0;
+					}
 				}
+				encoded = sb.toString();
 			}
 			writer.write(encoded);
 		}
