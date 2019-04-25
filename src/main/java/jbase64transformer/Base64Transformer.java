@@ -104,7 +104,7 @@ public enum Base64Transformer {
 		boolean ignoreGarbage = false;
 		final int defaultNumOfColumnsLimit = 76;
 		int numOfColumnsLimit = defaultNumOfColumnsLimit;
-		InputStream in = System.in;
+		InputStream in = null;
 		while (argsParser.hasNext()) {
 			ParseResultHolder parseResultHolder = null;
 			try { 
@@ -147,7 +147,9 @@ public enum Base64Transformer {
 							programName, arg, suggestion);
 					System.exit(-1);
 				}
-				if (!arg.equals("-")) {
+				if (arg.equals("-")) {
+					in = System.in;
+				} else {
 					File file = new File(arg);
 					try {
 						in = new FileInputStream(file);
@@ -159,6 +161,7 @@ public enum Base64Transformer {
 				}
 			}
 		}
+		if (in == null) { in = System.in; } 
 		Base64Transformer base64Transformer = Base64Transformer.INSTANCE;
 		if (decode) {
 			Reader reader = new InputStreamReader(in);
