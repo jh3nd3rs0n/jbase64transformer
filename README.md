@@ -8,7 +8,7 @@ JBase64Transformer is a Java implementation of GNU's base64 utility and an examp
 
 - <a href="#building">Building</a>
 
-- <a href="#starting">Starting JBase64Transformer</a>
+- <a href="#running">Running JBase64Transformer</a>
 
 - <a href="#usage">Usage</a>
 
@@ -37,11 +37,11 @@ $ mvn package
 
 </pre>
 
-<a name="starting"></a>
+<a name="running"></a>
 
-## Starting JBase64Transformer 
+## Running JBase64Transformer 
 
-To start JBase64Transformer, you can run the following command:
+To run JBase64Transformer, you can run the following command:
 
 <pre>
 
