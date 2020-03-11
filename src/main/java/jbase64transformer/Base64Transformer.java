@@ -26,7 +26,7 @@ public enum Base64Transformer {
 	
 	INSTANCE;
 	
-	public static final class Base64TransformerOptions extends Options {
+	public static final class CliOptions extends Options {
 		
 		public static final Option DECODE_OPTION = new PosixOption.Builder('d')
 				.doc("decode data")
@@ -89,17 +89,17 @@ public enum Base64Transformer {
 				.special(true)
 				.build();
 	
-		public Base64TransformerOptions() { }
+		public CliOptions() { }
 		
 	}
 	
 	public static void main(final String[] args) {
-		Options options = new Base64TransformerOptions();
+		Options options = new CliOptions();
 		ArgsParser argsParser = ArgsParser.newInstance(args, options, false);
 		String programName = Base64Transformer.class.getName();
 		String programVersion = "1.0";
 		String suggestion = String.format("Try '%s %s' for more information", 
-				programName, Base64TransformerOptions.HELP_OPTION.getUsage());
+				programName, CliOptions.HELP_OPTION.getUsage());
 		boolean decode = false;
 		boolean ignoreGarbage = false;
 		final int defaultNumOfColumnsLimit = 76;
