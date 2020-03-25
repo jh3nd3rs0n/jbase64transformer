@@ -13,14 +13,14 @@ import java.io.Writer;
 import java.util.Arrays;
 import java.util.Base64;
 
-import argmatey.ArgsParser;
-import argmatey.GnuLongOption;
-import argmatey.Option;
-import argmatey.OptionArgSpec;
-import argmatey.Options;
-import argmatey.ParseResultHolder;
-import argmatey.PosixOption;
-import argmatey.StringConverter;
+import argmatey.ArgMatey.ArgsParser;
+import argmatey.ArgMatey.GnuLongOption;
+import argmatey.ArgMatey.Option;
+import argmatey.ArgMatey.OptionArgSpec;
+import argmatey.ArgMatey.Options;
+import argmatey.ArgMatey.ParseResultHolder;
+import argmatey.ArgMatey.PosixOption;
+import argmatey.ArgMatey.StringConverter;
 
 public enum Base64Transformer {
 	

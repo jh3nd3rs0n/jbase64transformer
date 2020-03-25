@@ -20,10 +20,6 @@ JBase64Transformer is a Java implementation of GNU's base64 utility and an examp
 
 - Java&#8482; SDK 1.8 or higher
 
-- Local Maven project dependencies (requires download and installation)
-
-  - [argmatey](https://github.com/jh3nd3rs0n/argmatey)
-
 <a name="building"></a>
 
 ## Building
