@@ -1847,19 +1847,57 @@ public final class ArgMatey {
 
 	public static final class OptionArg {
 		
-		private final List<Object> objectValues;
+		static OptionArg newInstance(
+				final String optionArg, 
+				final String separator, 
+				final StringConverter stringConverter) {
+			if (optionArg == null) {
+				throw new NullPointerException(
+						"option argument must not be null");
+			}
+			if (separator == null) {
+				throw new NullPointerException("separator must not be null");
+			}
+			if (stringConverter == null) {
+				throw new NullPointerException(
+						"string converter must not be null");
+			}
+			List<String> optArgs = Arrays.asList(optionArg.split(
+					separator));
+			if (optArgs.size() == 1) {
+				return newInstance(optionArg, stringConverter);
+			} else {
+				List<OptionArg> list = new ArrayList<OptionArg>();
+				for (String optArg : optArgs) {
+					list.add(newInstance(optArg, stringConverter));
+				}
+				return new OptionArg(optionArg, list);
+			}
+		}
+		
+		private static OptionArg newInstance(
+				final String optionArg,
+				final StringConverter stringConverter) {
+			Object objectValue = stringConverter.convert(optionArg);
+			return new OptionArg(optionArg, objectValue);
+		}
+		
+		private final Object objectValue;
 		private final List<OptionArg> optionArgs;
 		private final String string;
 			
-		OptionArg(
-				final List<Object> objValues, 
-				final List<OptionArg> optArgs, 
-				final String optArg) {
-			this.objectValues = new ArrayList<Object>(objValues);
+		private OptionArg(final String optArg, final List<OptionArg> optArgs) {
+			this.objectValue = null;
 			this.optionArgs = new ArrayList<OptionArg>(optArgs);
 			this.string = optArg;
 		}
 		
+		private OptionArg(final String optArg, final Object objValue) {
+			this.objectValue = objValue;
+			this.optionArgs = new ArrayList<OptionArg>();
+			this.string = optArg;
+		}
+
 		@Override
 		public boolean equals(Object obj) {
 			if (this == obj) {
@@ -1872,11 +1910,11 @@ public final class ArgMatey {
 				return false;
 			}
 			OptionArg other = (OptionArg) obj;
-			if (this.objectValues == null) {
-				if (other.objectValues != null) {
+			if (this.objectValue == null) {
+				if (other.objectValue != null) {
 					return false;
 				}
-			} else if (!this.objectValues.equals(other.objectValues)) {
+			} else if (!this.objectValue.equals(other.objectValue)) {
 				return false;
 			}
 			if (this.optionArgs == null) {
@@ -1897,21 +1935,26 @@ public final class ArgMatey {
 		}
 
 		public Object getObjectValue() {
-			return this.objectValues.get(0);
+			if (this.objectValue != null) {
+				return this.objectValue;
+			}
+			return this.getObjectValues().get(0);
 		}
-		
+
 		public List<Object> getObjectValues() {
-			return Collections.unmodifiableList(this.objectValues);
+			List<Object> objectValues = new ArrayList<Object>();
+			if (this.objectValue != null) {
+				objectValues.add(this.objectValue);
+			} else {
+				for (OptionArg optionArg : this.optionArgs) {
+					objectValues.add(optionArg.getObjectValue());
+				}
+			}
+			return Collections.unmodifiableList(objectValues);
 		}
 		
 		public List<OptionArg> getOptionArgs() {
-			List<OptionArg> optArgs = new ArrayList<OptionArg>();
-			if (this.optionArgs.size() == 0) {
-				optArgs.add(this);
-			} else {
-				optArgs.addAll(this.optionArgs);
-			}
-			return Collections.unmodifiableList(optArgs);
+			return Collections.unmodifiableList(this.optionArgs);
 		}
 		
 		public <T> T getTypeValue(final Class<T> type) {
@@ -1930,12 +1973,12 @@ public final class ArgMatey {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + ((this.objectValues == null) ? 
-					0 : this.objectValues.hashCode());
-			result = prime * result + ((this.optionArgs == null) ? 
-					0 : this.optionArgs.hashCode());
-			result = prime * result + ((this.string == null) ? 
-					0 : this.string.hashCode());
+			result = prime * result + ((objectValue == null) ? 
+					0 : objectValue.hashCode());
+			result = prime * result + ((optionArgs == null) ? 
+					0 : optionArgs.hashCode());
+			result = prime * result + ((string == null) ? 
+					0 : string.hashCode());
 			return result;
 		}
 		
@@ -2131,24 +2174,8 @@ public final class ArgMatey {
 		}
 
 		public OptionArg newOptionArg(final String optionArg) {
-			if (optionArg == null) {
-				throw new NullPointerException(
-						"option argument must not be null");
-			}
-			List<String> optArgs = Arrays.asList(optionArg.split(
-					this.separator));
-			List<Object> objectValues = new ArrayList<Object>();
-			List<OptionArg> opArgs = new ArrayList<OptionArg>();
-			if (optArgs.size() == 1) {
-				objectValues.add(this.stringConverter.convert(optionArg));
-			} else {
-				for (String optArg : optArgs) {
-					OptionArg opArg = this.newOptionArg(optArg);
-					objectValues.addAll(opArg.getObjectValues());
-					opArgs.add(opArg);
-				}
-			}
-			return new OptionArg(objectValues, opArgs, optionArg);
+			return OptionArg.newInstance(
+					optionArg, this.separator, this.stringConverter);
 		}
 
 		@Override
