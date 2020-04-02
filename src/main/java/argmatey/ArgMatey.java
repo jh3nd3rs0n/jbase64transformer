@@ -1820,10 +1820,6 @@ public final class ArgMatey {
 		}
 		
 		public final OptionArg newOptionArg(final String optionArg) {
-			if (optionArg == null && this.optionArgSpec != null 
-					&& !this.optionArgSpec.isOptional()) {
-				throw new OptionArgRequiredException(this);
-			}
 			if (optionArg != null && this.optionArgSpec == null) {
 				throw new OptionArgNotAllowedException(this);
 			}
@@ -1831,6 +1827,8 @@ public final class ArgMatey {
 			if (optionArg != null && this.optionArgSpec != null) {
 				try {
 					optArg = this.optionArgSpec.newOptionArg(optionArg);
+				} catch (NullPointerException e) {
+					throw new OptionArgRequiredException(this);
 				} catch (IllegalArgumentException e) {
 					throw new IllegalOptionArgException(this, optionArg, e);
 				}
@@ -1845,8 +1843,29 @@ public final class ArgMatey {
 
 	}
 
+	/**
+	 * An {@code Object} that represents a command line option argument.
+	 */
 	public static final class OptionArg {
 		
+		/**
+		 * Returns a new instance of {@code OptionArg} based on the provided 
+		 * command line option argument, the provided separator, and the 
+		 * provided {@code StringConverter}.
+		 * 
+		 * @param optionArg the provided command line option argument
+		 * @param separator the provided separator
+		 * @param stringConverter the provided {@code StringConverter}
+		 * 
+		 * @throws NullPointerException if the provided command line option
+		 * argument, the provided separator, or the provided 
+		 * {@code StringConverter} are {@code null}
+		 * 
+		 * @throws IllegalArgumentException if all or part of the provided 
+		 * command line option argument is illegal or inappropriate
+		 * 
+		 * @return a new instance of {@code OptionArg}
+		 */
 		static OptionArg newInstance(
 				final String optionArg, 
 				final String separator, 
@@ -1875,6 +1894,19 @@ public final class ArgMatey {
 			}
 		}
 		
+		/**
+		 * Returns a new instance of {@code OptionArg} based on the provided 
+		 * command line option argument and the provided 
+		 * {@code StringConverter}.
+		 * 
+		 * @param optionArg the provided command line option argument
+		 * @param stringConverter the provided {@code StringConverter}
+		 * 
+		 * @throws IllegalArgumentException if the provided command line 
+		 * option argument is illegal or inappropriate
+		 * 
+		 * @return a new instance of {@code OptionArg}
+		 */
 		private static OptionArg newInstance(
 				final String optionArg,
 				final StringConverter stringConverter) {
@@ -1882,18 +1914,51 @@ public final class ArgMatey {
 			return new OptionArg(optionArg, objectValue);
 		}
 		
+		/** The {@code Object} value of this {@code OptionArg}. */
 		private final Object objectValue;
+		
+		/** 
+		 * The {@code boolean} value that determines if the {@code Object} 
+		 * value of this {@code OptionArg} is set.
+		 */
+		private final boolean objectValueSet;
+		
+		/** 
+		 * The {@code List} of sub {@code OptionArg}s if any.
+		 */
 		private final List<OptionArg> optionArgs;
+		
+		/** 
+		 * The {@code String} representation of this {@code OptionArg} as it 
+		 * appears in the command line. 
+		 */
 		private final String string;
-			
+		
+		/**
+		 * Constructs a node {@code OptionArg} based on the provided command 
+		 * line option argument and the provided {@code List} of sub 
+		 * {@code OptionArg}s.
+		 * 	
+		 * @param optArg the provided command line option argument
+		 * @param optArgs the provided {@code List} of sub {@code OptionArg}s
+		 */
 		private OptionArg(final String optArg, final List<OptionArg> optArgs) {
 			this.objectValue = null;
+			this.objectValueSet = false;
 			this.optionArgs = new ArrayList<OptionArg>(optArgs);
 			this.string = optArg;
 		}
 		
+		/**
+		 * Constructs a leaf {@code OptionArg} based on the provided command 
+		 * line option argument and the provided {@code Object} value.
+		 * 
+		 * @param optArg the provided command line option argument
+		 * @param objValue the provided {@code Object} value
+		 */
 		private OptionArg(final String optArg, final Object objValue) {
 			this.objectValue = objValue;
+			this.objectValueSet = true;
 			this.optionArgs = new ArrayList<OptionArg>();
 			this.string = optArg;
 		}
@@ -1917,6 +1982,9 @@ public final class ArgMatey {
 			} else if (!this.objectValue.equals(other.objectValue)) {
 				return false;
 			}
+			if (this.objectValueSet != other.objectValueSet) {
+				return false;
+			}
 			if (this.optionArgs == null) {
 				if (other.optionArgs != null) {
 					return false;
@@ -1934,16 +2002,32 @@ public final class ArgMatey {
 			return true;
 		}
 
+		/**
+		 * Return the {@code Object} value of this {@code OptionArg}. If there 
+		 * are more than one {@code Object} value, the first {@code Object} 
+		 * value is returned.
+		 * 
+		 * @return the {@code Object} value of this {@code OptionArg} or the 
+		 * first {@code Object} value if there are more than one {@code Object} 
+		 * value
+		 */
 		public Object getObjectValue() {
-			if (this.objectValue != null) {
+			if (this.objectValueSet) {
 				return this.objectValue;
 			}
 			return this.getObjectValues().get(0);
 		}
 
+		/**
+		 * Returns an unmodifiable {@code List} of {@code Object} values of 
+		 * this {@code OptionArg}.
+		 * 
+		 * @return an unmodifiable {@code List} of {@code Object} values of 
+		 * this {@code OptionArg}
+		 */
 		public List<Object> getObjectValues() {
 			List<Object> objectValues = new ArrayList<Object>();
-			if (this.objectValue != null) {
+			if (this.objectValueSet) {
 				objectValues.add(this.objectValue);
 			} else {
 				for (OptionArg optionArg : this.optionArgs) {
@@ -1952,15 +2036,46 @@ public final class ArgMatey {
 			}
 			return Collections.unmodifiableList(objectValues);
 		}
-		
+
+		/**
+		 * Returns an unmodifiable {@code List} of sub {@code OptionArg}s.
+		 * 
+		 * @return an unmodifiable {@code List} of sub {@code OptionArg}s
+		 */
 		public List<OptionArg> getOptionArgs() {
 			return Collections.unmodifiableList(this.optionArgs);
 		}
 		
+		/**
+		 * Returns the {@code Object} value of this {@code OptionArg} as the 
+		 * specified type. If there are more than one {@code Object} values, 
+		 * the first {@code Object} value is returned as the specified type.
+		 * 
+		 * @param type the specified type
+		 * 
+		 * @throws ClassCastException if the {@code Object} value of this 
+		 * {@code OptionArg} is not of the specified type
+		 * 
+		 * @return the {@code Object} value of this {@code OptionArg} as the 
+		 * specified type or the the first {@code Object} value as the 
+		 * specified type if there are more than one {@code Object} value
+		 */
 		public <T> T getTypeValue(final Class<T> type) {
 			return type.cast(this.getObjectValue());
 		}
 		
+		/**
+		 * Returns an unmodifiable {@code List} of the specified type of 
+		 * {@code Object} values of this {@code OptionArg}.
+		 *  
+		 * @param type the specified type
+		 * 
+		 * @throws ClassCastException if any of the {@code Object} values of 
+		 * this {@code OptionArg} are not of the specified type  
+		 * 
+		 * @return an unmodifiable {@code List} of the specified type of 
+		 * {@code Object} values of this {@code OptionArg}
+		 */
 		public <T> List<T> getTypeValues(final Class<T> type) {
 			List<T> typeValues = new ArrayList<T>();
 			for (Object objectValue : this.getObjectValues()) {
@@ -1973,15 +2088,23 @@ public final class ArgMatey {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + ((objectValue == null) ? 
-					0 : objectValue.hashCode());
-			result = prime * result + ((optionArgs == null) ? 
-					0 : optionArgs.hashCode());
-			result = prime * result + ((string == null) ? 
-					0 : string.hashCode());
+			result = prime * result + ((this.objectValue == null) ? 
+					0 : this.objectValue.hashCode());
+			result = prime * result + (this.objectValueSet ? 1231 : 1237);
+			result = prime * result + ((this.optionArgs == null) ? 
+					0 : this.optionArgs.hashCode());
+			result = prime * result + ((this.string == null) ? 
+					0 : this.string.hashCode());
 			return result;
 		}
 		
+		/**
+		 * Returns the {@code String} representation of this {@code OptionArg} 
+		 * as it appears in the command line.
+		 * 
+		 * @return the {@code String} representation of this {@code OptionArg} 
+		 * as it appears in the command line
+		 */
 		@Override
 		public String toString() {
 			return this.string;
@@ -2174,6 +2297,13 @@ public final class ArgMatey {
 		}
 
 		public OptionArg newOptionArg(final String optionArg) {
+			if (!this.optional && optionArg == null) {
+				throw new NullPointerException(
+						"option argument must not be null");
+			}
+			if (this.optional && optionArg == null) {
+				return null;
+			}
 			return OptionArg.newInstance(
 					optionArg, this.separator, this.stringConverter);
 		}
