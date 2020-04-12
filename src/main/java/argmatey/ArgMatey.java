@@ -1848,72 +1848,6 @@ public final class ArgMatey {
 	 */
 	public static final class OptionArg {
 		
-		/**
-		 * Returns a new instance of {@code OptionArg} based on the provided 
-		 * command line option argument, the provided separator, and the 
-		 * provided {@code StringConverter}.
-		 * 
-		 * @param optionArg the provided command line option argument
-		 * @param separator the provided separator
-		 * @param stringConverter the provided {@code StringConverter}
-		 * 
-		 * @throws NullPointerException if the provided command line option
-		 * argument, the provided separator, or the provided 
-		 * {@code StringConverter} are {@code null}
-		 * 
-		 * @throws IllegalArgumentException if all or part of the provided 
-		 * command line option argument is illegal or inappropriate
-		 * 
-		 * @return a new instance of {@code OptionArg}
-		 */
-		static OptionArg newInstance(
-				final String optionArg, 
-				final String separator, 
-				final StringConverter stringConverter) {
-			if (optionArg == null) {
-				throw new NullPointerException(
-						"option argument must not be null");
-			}
-			if (separator == null) {
-				throw new NullPointerException("separator must not be null");
-			}
-			if (stringConverter == null) {
-				throw new NullPointerException(
-						"string converter must not be null");
-			}
-			List<String> optArgs = Arrays.asList(optionArg.split(
-					separator));
-			if (optArgs.size() == 1) {
-				return newInstance(optionArg, stringConverter);
-			} else {
-				List<OptionArg> list = new ArrayList<OptionArg>();
-				for (String optArg : optArgs) {
-					list.add(newInstance(optArg, stringConverter));
-				}
-				return new OptionArg(optionArg, list);
-			}
-		}
-		
-		/**
-		 * Returns a new instance of {@code OptionArg} based on the provided 
-		 * command line option argument and the provided 
-		 * {@code StringConverter}.
-		 * 
-		 * @param optionArg the provided command line option argument
-		 * @param stringConverter the provided {@code StringConverter}
-		 * 
-		 * @throws IllegalArgumentException if the provided command line 
-		 * option argument is illegal or inappropriate
-		 * 
-		 * @return a new instance of {@code OptionArg}
-		 */
-		private static OptionArg newInstance(
-				final String optionArg,
-				final StringConverter stringConverter) {
-			Object objectValue = stringConverter.convert(optionArg);
-			return new OptionArg(optionArg, objectValue);
-		}
-		
 		/** The {@code Object} value of this {@code OptionArg}. */
 		private final Object objectValue;
 		
@@ -1942,7 +1876,7 @@ public final class ArgMatey {
 		 * @param optArg the provided command line option argument
 		 * @param optArgs the provided {@code List} of sub {@code OptionArg}s
 		 */
-		private OptionArg(final String optArg, final List<OptionArg> optArgs) {
+		OptionArg(final String optArg, final List<OptionArg> optArgs) {
 			this.objectValue = null;
 			this.objectValueSet = false;
 			this.optionArgs = new ArrayList<OptionArg>(optArgs);
@@ -1956,7 +1890,7 @@ public final class ArgMatey {
 		 * @param optArg the provided command line option argument
 		 * @param objValue the provided {@code Object} value
 		 */
-		private OptionArg(final String optArg, final Object objValue) {
+		OptionArg(final String optArg, final Object objValue) {
 			this.objectValue = objValue;
 			this.objectValueSet = true;
 			this.optionArgs = new ArrayList<OptionArg>();
@@ -2304,8 +2238,19 @@ public final class ArgMatey {
 			if (this.optional && optionArg == null) {
 				return null;
 			}
-			return OptionArg.newInstance(
-					optionArg, this.separator, this.stringConverter);
+			List<String> optArgs = Arrays.asList(optionArg.split(
+					this.separator));
+			if (optArgs.size() == 1) {
+				Object objectValue = this.stringConverter.convert(optionArg);
+				return new OptionArg(optionArg, objectValue);
+			} else {
+				List<OptionArg> list = new ArrayList<OptionArg>();
+				for (String optArg : optArgs) {
+					Object objectValue = this.stringConverter.convert(optArg);
+					list.add(new OptionArg(optArg, objectValue));
+				}
+				return new OptionArg(optionArg, list);
+			}
 		}
 
 		@Override
