@@ -6,6 +6,9 @@
 	<version>1.0-SNAPSHOT</version>
 	<name>JBase64Transformer</name>
 	<description>A Java implementation of GNU's base64 utility and an example of using ArgMatey</description>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
 	<build>
 		<plugins>
 			<plugin>
