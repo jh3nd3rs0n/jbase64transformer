@@ -170,6 +170,15 @@ public enum Base64Transformer {
 			} catch (IOException e) {
 				System.err.printf("%s: %s%n", programName, e.toString());
 				System.exit(-1);
+			} finally {
+				if (in instanceof FileInputStream) {
+					try {
+						in.close();
+					} catch (IOException e) {
+						System.err.printf("%s: %s%n", programName, e.toString());
+						System.exit(-1);
+					}
+				}
 			}
 		} else {
 			Writer writer = new OutputStreamWriter(System.out);
@@ -178,6 +187,15 @@ public enum Base64Transformer {
 			} catch (IOException e) {
 				System.err.printf("%s: %s%n", programName, e.toString());
 				System.exit(-1);
+			} finally {
+				if (in instanceof FileInputStream) {
+					try {
+						in.close();
+					} catch (IOException e) {
+						System.err.printf("%s: %s%n", programName, e.toString());
+						System.exit(-1);
+					}
+				}
 			}
 		}
 	}
