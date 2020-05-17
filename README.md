@@ -22,7 +22,7 @@ JBase64Transformer is a Java implementation of GNU's base64 utility and an examp
 
 To build and package JBase64Transformer as an executable jar file, run the following commands:
 
-```bash
+```
 
     $ cd jbase64transformer
     $ mvn package
@@ -33,23 +33,19 @@ To build and package JBase64Transformer as an executable jar file, run the follo
 
 To run JBase64Transformer, you can run the following command:
 
-```bash
+```
 
-    $ mvn exec:java -Dexec.args="[OPTION]... [FILE]"
+    $ java -jar target/jbase64transformer-${VERSION}.jar [OPTION]... [FILE]
 
 ```
 
-Replace `[OPTION]...` with command line options described in the usage below and replace `[FILE]` with the file you would like transformed.
+Be sure to replace the following:
 
-If you have JBase64Transformer packaged as an executable jar file, you can run the following command:
+- Replace `${VERSION}` with the actual version shown within the name of the executable jar file.
 
-```bash
+- Replace `[OPTION]...` with nothing or one or more of the command line options described in the usage below.
 
-    $ java -jar jbase64transformer-1.0-SNAPSHOT.jar [OPTION]... [FILE]
-
-```
-
-Again, replace `[OPTION]...` with command line options described in the usage below and replace `[FILE]` with the file you would like transformed.
+- Replace `[FILE]` with nothing or the file you would like transformed. (Replacing `[FILE]` with nothing will cause JBase64Transformer to use standard input as input instead of a file.)
 
 ## Usage
 
