@@ -32,14 +32,6 @@
 					</archive>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>exec-maven-plugin</artifactId>
-				<version>1.5.0</version>
-				<configuration>
-					<mainClass>jbase64transformer.Base64Transformer</mainClass>
-				</configuration>
-			</plugin>
 		</plugins>
 	</build>
 </project>
