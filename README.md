@@ -22,10 +22,10 @@ JBase64Transformer is a Java implementation of GNU's base64 utility and an examp
 
 To build and package JBase64Transformer as an executable jar file, run the following commands:
 
-```
+```bash
 
-    $ cd jbase64transformer
-    $ mvn package
+    cd jbase64transformer
+    mvn package
 
 ```
 
@@ -33,9 +33,9 @@ To build and package JBase64Transformer as an executable jar file, run the follo
 
 To run JBase64Transformer, you can run the following command:
 
-```
+```bash
 
-    $ java -jar target/jbase64transformer-${VERSION}.jar [OPTION]... [FILE]
+    java -jar target/jbase64transformer-${VERSION}.jar [OPTION]... [FILE]
 
 ```
 
