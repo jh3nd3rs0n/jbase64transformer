@@ -141,7 +141,7 @@ public enum Base64Transformer {
 		@NonparsedArgSink
 		public void setFile(final String f) {
 			if (this.file != null) {
-				throw new IllegalArgumentException(
+				throw new IllegalStateException(
 						String.format("extra operand '%s'", f));
 			}
 			this.file = f;
@@ -182,7 +182,7 @@ public enum Base64Transformer {
 		Cli cli = new Cli(programName, programVersion, options);
 		ArgsParser argsParser = ArgsParser.newInstance(args, options, false);
 		Option helpOption = options.toList().get(3);
-		String suggestion = String.format("Try '%s %s' for more information", 
+		String suggestion = String.format("Try '%s %s' for more information.", 
 				programName, helpOption.getUsage());
 		try {
 			argsParser.parseRemainingTo(cli);
@@ -251,7 +251,7 @@ public enum Base64Transformer {
 		StringBuilder sb = new StringBuilder();
 		Base64.Decoder decoder = Base64.getDecoder();
 		String base64AlphabetChars = 
-				"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+				"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 		String acceptedWhitespaceChars = "\r\n";
 		final int groupSize = 4;
 		while (true) {
@@ -266,7 +266,8 @@ public enum Base64Transformer {
 			if (base64AlphabetChars.indexOf(c) == -1) {
 				if (acceptedWhitespaceChars.indexOf(c) == -1 
 						&& !ignoreGarbage) {
-					throw new IOException("non-alphabet character found");
+					throw new IOException(String.format(
+							"non-alphabet character found: '%s'", (char) c));
 				}
 				continue;
 			}

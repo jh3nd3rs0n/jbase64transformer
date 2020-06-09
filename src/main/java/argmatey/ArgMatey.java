@@ -738,6 +738,7 @@ public final class ArgMatey {
 									NonparsedArgSinkAnnotatedElement.newInstance(method);
 							elementFound = true;
 							element.receive(obj, nonparsedArg);
+							break;
 						}
 					}
 				}
@@ -2863,8 +2864,12 @@ public final class ArgMatey {
 						final AnnotatedElement element, 
 						final OptionArg optionArg) {
 					Field field = (Field) element;
+					List<Object> objectValues = Collections.emptyList();
+					if (optionArg != null) {
+						objectValues = optionArg.getObjectValues();
+					}
 					try {
-						field.set(obj, optionArg.getObjectValues());
+						field.set(obj, objectValues);
 					} catch (IllegalArgumentException e) {
 						throw new AssertionError(e);
 					} catch (IllegalAccessException e) {
@@ -2898,8 +2903,12 @@ public final class ArgMatey {
 						final AnnotatedElement element, 
 						final OptionArg optionArg) {
 					Field field = (Field) element;
+					Object objectValue = null;
+					if (optionArg != null) {
+						objectValue = optionArg.getObjectValue();
+					}
 					try {
-						field.set(obj, optionArg.getObjectValue());
+						field.set(obj, objectValue);
 					} catch (IllegalArgumentException e) {
 						throw new AssertionError(e);
 					} catch (IllegalAccessException e) {
@@ -3016,8 +3025,12 @@ public final class ArgMatey {
 						final AnnotatedElement element, 
 						final OptionArg optionArg) {
 					Method method = (Method) element;
+					List<Object> objectValues = Collections.emptyList();
+					if (optionArg != null) {
+						objectValues = optionArg.getObjectValues();
+					}
 					try {
-						method.invoke(obj, optionArg.getObjectValues());
+						method.invoke(obj, objectValues);
 					} catch (IllegalAccessException e) {
 						throw new AssertionError(e);
 					} catch (IllegalArgumentException e) {
@@ -3110,8 +3123,12 @@ public final class ArgMatey {
 						final AnnotatedElement element, 
 						final OptionArg optionArg) {
 					Method method = (Method) element;
+					Object objectValue = null;
+					if (optionArg != null) {
+						objectValue = optionArg.getObjectValue();
+					}
 					try {
-						method.invoke(obj, optionArg.getObjectValue());
+						method.invoke(obj, objectValue);
 					} catch (IllegalAccessException e) {
 						throw new AssertionError(e);
 					} catch (IllegalArgumentException e) {
