@@ -237,7 +237,7 @@ public enum Base64Transformer {
 				base64Transformer.decode(
 						reader, System.out, cli.isGarbageIgnored());
 			} catch (IOException e) {
-				System.err.printf("%s: %s%n", programName, e);
+				System.err.printf("%n%s: %s%n", programName, e);
 				System.exit(-1);
 			} finally {
 				if (in instanceof FileInputStream) {
@@ -254,7 +254,7 @@ public enum Base64Transformer {
 			try {
 				base64Transformer.encode(in, writer, cli.getColumnLimit());
 			} catch (IOException e) {
-				System.err.printf("%s: %s%n", programName, e);
+				System.err.printf("%n%s: %s%n", programName, e);
 				System.exit(-1);
 			} finally {
 				if (in instanceof FileInputStream) {
