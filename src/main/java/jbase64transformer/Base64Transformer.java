@@ -99,10 +99,6 @@ public enum Base64Transformer {
 			this.programVersion = progVersion;
 		}
 		
-		public String getFile() {
-			return this.file;
-		}
-		
 		@OptionSink(
 				optionBuilder = @OptionBuilder(
 						doc = "display this help and exit",
@@ -112,7 +108,7 @@ public enum Base64Transformer {
 				), 
 				ordinal = 3
 		)
-		public void printHelp() {
+		public void displayHelp() {
 			System.out.printf("Usage: %s [OPTION]... [FILE]%n", 
 					this.programName);
 			System.out.printf("Base64 encode or decode FILE, or standard "
@@ -133,9 +129,13 @@ public enum Base64Transformer {
 				), 
 				ordinal = 4
 		)
-		public void printVersion() {
+		public void displayVersion() {
 			System.out.printf("%s %s%n", this.programName, this.programVersion);
 			System.exit(0);
+		}
+		
+		public String getFile() {
+			return this.file;
 		}
 		
 		@NonparsedArgSink
