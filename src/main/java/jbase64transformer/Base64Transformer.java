@@ -30,70 +30,22 @@ public enum Base64Transformer {
 	
 	public static final class Cli {
 		
-		@OptionSink(
-				optionBuilder = @OptionBuilder(
-						doc = "decode data",
-						name = "d",
-						type = PosixOption.class 
-				), 
-				ordinal = 0,
-				otherOptionBuilders = {
-						@OptionBuilder(
-								name = "decode",
-								type = GnuLongOption.class
-						)
-				}
-		)
-		public boolean decode = false;
-		
-		@OptionSink(
-				optionBuilder = @OptionBuilder(
-						doc = "when decoding, ignore non-alphabet characters",
-						name = "i",
-						type = PosixOption.class 
-				), 
-				ordinal = 1,
-				otherOptionBuilders = {
-						@OptionBuilder(
-								name = "ignore-garbage",
-								type = GnuLongOption.class
-						)
-				}
-		)
-		public boolean ignoreGarbage = false;
-		
-		@OptionSink(
-				optionBuilder = @OptionBuilder(
-						doc = "wrap encoded lines after COLS character "
-								+ "(default 76)." 
-								+ "\r\n      Use 0 to disable line wrapping",
-						optionArgSpecBuilder = @OptionArgSpecBuilder(
-								name = "COLS",
-								stringConverter = NonnegativeIntegerStringConverter.class
-						),
-						name = "w",
-						type = PosixOption.class 
-				), 
-				ordinal = 2,
-				otherOptionBuilders = {
-						@OptionBuilder(
-								name = "wrap",
-								type = GnuLongOption.class
-						)
-				}
-		)
-		public int wrap = 76;
-				
+		private int columnLimit;
+		private boolean decodingMode;
 		private String file;
+		private boolean garbageIgnored;
 		private final Options options;
 		private final String programName;
 		private final String programVersion;
 		
-		public Cli(
+		Cli(
 				final String progName, 
 				final String progVersion, 
 				final Options opts) {
+			this.columnLimit = 76;
+			this.decodingMode = false;
 			this.file = null;
+			this.garbageIgnored = false;
 			this.options = opts;
 			this.programName = progName;
 			this.programVersion = progVersion;
@@ -134,8 +86,62 @@ public enum Base64Transformer {
 			System.exit(0);
 		}
 		
+		public int getColumnLimit() {
+			return this.columnLimit;
+		}
+		
 		public String getFile() {
 			return this.file;
+		}
+		
+		public boolean isDecodingMode() {
+			return this.decodingMode;
+		}
+		
+		public boolean isGarbageIgnored() {
+			return this.garbageIgnored;
+		}
+
+		@OptionSink(
+				optionBuilder = @OptionBuilder(
+						doc = "wrap encoded lines after COLS character "
+								+ "(default 76)." 
+								+ "\r\n      Use 0 to disable line wrapping",
+						optionArgSpecBuilder = @OptionArgSpecBuilder(
+								name = "COLS",
+								stringConverter = NonnegativeIntegerStringConverter.class
+						),
+						name = "w",
+						type = PosixOption.class 
+				), 
+				ordinal = 2,
+				otherOptionBuilders = {
+						@OptionBuilder(
+								name = "wrap",
+								type = GnuLongOption.class
+						)
+				}
+		)
+		public void setColumnLimit(final int colLimit) {
+			this.columnLimit = colLimit;
+		}
+		
+		@OptionSink(
+				optionBuilder = @OptionBuilder(
+						doc = "decode data",
+						name = "d",
+						type = PosixOption.class 
+				), 
+				ordinal = 0,
+				otherOptionBuilders = {
+						@OptionBuilder(
+								name = "decode",
+								type = GnuLongOption.class
+						)
+				}
+		)
+		public void setDecodingMode(final boolean b) {
+			this.decodingMode = b;
 		}
 		
 		@NonparsedArgSink
@@ -145,6 +151,24 @@ public enum Base64Transformer {
 						String.format("extra operand '%s'", f));
 			}
 			this.file = f;
+		}
+
+		@OptionSink(
+				optionBuilder = @OptionBuilder(
+						doc = "when decoding, ignore non-alphabet characters",
+						name = "i",
+						type = PosixOption.class 
+				), 
+				ordinal = 1,
+				otherOptionBuilders = {
+						@OptionBuilder(
+								name = "ignore-garbage",
+								type = GnuLongOption.class
+						)
+				}
+		)
+		public void setGarbageIgnored(final boolean b) {
+			this.garbageIgnored = b;
 		}
 		
 	}
@@ -207,10 +231,11 @@ public enum Base64Transformer {
 		}
 		if (in == null) { in = System.in; } 
 		Base64Transformer base64Transformer = Base64Transformer.INSTANCE;
-		if (cli.decode) {
+		if (cli.isDecodingMode()) {
 			Reader reader = new InputStreamReader(in);
 			try {
-				base64Transformer.decode(reader, System.out, cli.ignoreGarbage);
+				base64Transformer.decode(
+						reader, System.out, cli.isGarbageIgnored());
 			} catch (IOException e) {
 				System.err.printf("%s: %s%n", programName, e);
 				System.exit(-1);
@@ -227,7 +252,7 @@ public enum Base64Transformer {
 		} else {
 			Writer writer = new OutputStreamWriter(System.out);
 			try {
-				base64Transformer.encode(in, writer, cli.wrap);
+				base64Transformer.encode(in, writer, cli.getColumnLimit());
 			} catch (IOException e) {
 				System.err.printf("%s: %s%n", programName, e);
 				System.exit(-1);
@@ -247,11 +272,14 @@ public enum Base64Transformer {
 	public void decode(
 			final Reader reader, 
 			final OutputStream out, 
-			final boolean ignoreGarbage) throws IOException {
+			final boolean garbageIgnored) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		Base64.Decoder decoder = Base64.getDecoder();
 		String base64AlphabetChars = 
-				"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+				"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+				+ "abcdefghijklmnopqrstuvwxyz"
+				+ "0123456789"
+				+ "+/=";
 		String acceptedWhitespaceChars = "\r\n";
 		final int groupSize = 4;
 		while (true) {
@@ -265,7 +293,7 @@ public enum Base64Transformer {
 			}
 			if (base64AlphabetChars.indexOf(c) == -1) {
 				if (acceptedWhitespaceChars.indexOf(c) == -1 
-						&& !ignoreGarbage) {
+						&& !garbageIgnored) {
 					throw new IOException(String.format(
 							"non-alphabet character found: '%s'", (char) c));
 				}
@@ -284,36 +312,34 @@ public enum Base64Transformer {
 	public void encode(
 			final InputStream in,
 			final Writer writer,
-			final int numOfColumnsLimit) throws IOException {
-		if (numOfColumnsLimit < 0) {
+			final int columnLimit) throws IOException {
+		if (columnLimit < 0) {
 			throw new IllegalArgumentException(String.format(
 					"integer must be between %s and %s (inclusive)", 
 					0, Integer.MAX_VALUE));
 		}
 		final int groupSize = 3;
-		int numOfColumns = 0;
+		int column = 0;
 		String lineSeparator = System.getProperty("line.separator");
 		Base64.Encoder encoder = Base64.getEncoder();
 		while (true) {
 			byte[] b = new byte[groupSize];
 			int newLength = in.read(b);
 			if (newLength == -1) {
-				if (numOfColumnsLimit > 0 
-						&& numOfColumns > 0 
-						&& numOfColumns < numOfColumnsLimit) {
+				if (columnLimit > 0	&& column > 0 && column < columnLimit) {
 					writer.write(lineSeparator);
 				}
 				break; 
 			}
 			b = Arrays.copyOf(b, newLength);
 			String encoded = encoder.encodeToString(b);
-			if (numOfColumnsLimit > 0) {
+			if (columnLimit > 0) {
 				StringBuilder sb = new StringBuilder();
 				for (char c : encoded.toCharArray()) {
 					sb.append(c);
-					if (++numOfColumns == numOfColumnsLimit) {
+					if (++column == columnLimit) {
 						sb.append(lineSeparator);
-						numOfColumns = 0;
+						column = 0;
 					}
 				}
 				encoded = sb.toString();

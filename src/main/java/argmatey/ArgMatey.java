@@ -42,6 +42,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -751,7 +752,7 @@ public final class ArgMatey {
 						if (field.isAnnotationPresent(OptionSink.class)) {
 							OptionSinkAnnotatedElement element =
 									OptionSinkAnnotatedElement.newInstance(field);
-							if (element.accepts(option)) {
+							if (element.defines(option)) {
 								elementFound = true;
 								element.receive(obj, optionArg);
 								break;
@@ -764,7 +765,7 @@ public final class ArgMatey {
 						if (method.isAnnotationPresent(OptionSink.class)) {
 							OptionSinkAnnotatedElement element =
 									OptionSinkAnnotatedElement.newInstance(method);
-							if (element.accepts(option)) {
+							if (element.defines(option)) {
 								elementFound = true;
 								element.receive(obj, optionArg);
 								break;
@@ -2677,7 +2678,9 @@ public final class ArgMatey {
 					optionSinkAnnotatedElements.add(element);
 				}
 			}
-			Collections.sort(optionSinkAnnotatedElements);
+			Collections.sort(
+					optionSinkAnnotatedElements,
+					new OptionSinkAnnotatedElementComparator());
 			List<Option> options = new ArrayList<Option>();
 			for (OptionSinkAnnotatedElement element : optionSinkAnnotatedElements) {
 				options.add(element.newOption());
@@ -2790,8 +2793,7 @@ public final class ArgMatey {
 		
 	}
 	
-	static final class OptionSinkAnnotatedElement 
-		implements Comparable<OptionSinkAnnotatedElement> {
+	static final class OptionSinkAnnotatedElement {
 		
 		private static enum TargetFieldType implements TargetType {
 			
@@ -3276,34 +3278,20 @@ public final class ArgMatey {
 			this.targetType = tType;
 		}
 		
-		public boolean accepts(final Option option) {
+		public boolean defines(final Option option) {
 			List<OptionBuilder> optionBuilders = new ArrayList<OptionBuilder>();
 			optionBuilders.add(this.optionSink.optionBuilder());
-			optionBuilders.addAll(Arrays.asList(this.optionSink.otherOptionBuilders()));
+			optionBuilders.addAll(Arrays.asList(
+					this.optionSink.otherOptionBuilders()));
 			for (OptionBuilder optionBuilder : optionBuilders) {
 				Class<?> type = optionBuilder.type();
-				if (!type.equals(option.getClass())) {
-					continue;
-				}
 				String name = optionBuilder.name();
-				if (!name.equals(option.getName())) {
-					continue;
+				if (type.equals(option.getClass()) 
+						&& name.equals(option.getName())) {
+					return true;
 				}
-				return true;
 			}
 			return false;
-		}
-		
-		@Override
-		public int compareTo(final OptionSinkAnnotatedElement other) {
-			OptionSink thisOptionSink = this.optionSink;
-			OptionSink otherOptionSink = other.optionSink;
-			int diff = thisOptionSink.ordinal() - otherOptionSink.ordinal();
-			if (diff != 0) { return diff; }
-			OptionBuilder thisOptionBuilder = thisOptionSink.optionBuilder();
-			OptionBuilder otherOptionBuilder = otherOptionSink.optionBuilder();
-			return thisOptionBuilder.name().compareTo(
-					otherOptionBuilder.name());
 		}
 		
 		public OptionSink getOptionSink() {
@@ -3472,6 +3460,26 @@ public final class ArgMatey {
 		
 		public AnnotatedElement toAnnotatedElement() {
 			return this.annotatedElement;
+		}
+		
+	}
+	
+	static final class OptionSinkAnnotatedElementComparator 
+		implements Comparator<OptionSinkAnnotatedElement> {
+
+		public OptionSinkAnnotatedElementComparator() { }
+		
+		@Override
+		public int compare(
+				final OptionSinkAnnotatedElement arg0, 
+				final OptionSinkAnnotatedElement arg1) {
+			OptionSink optionSink0 = arg0.getOptionSink();
+			OptionSink optionSink1 = arg1.getOptionSink();
+			int diff = optionSink0.ordinal() - optionSink1.ordinal();
+			if (diff != 0) { return diff; }
+			OptionBuilder optionBuilder0 = optionSink0.optionBuilder();
+			OptionBuilder optionBuilder1 = optionSink1.optionBuilder();
+			return optionBuilder0.name().compareTo(optionBuilder1.name());
 		}
 		
 	}
