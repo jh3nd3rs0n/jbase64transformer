@@ -15,10 +15,12 @@ import java.util.Base64;
 
 import argmatey.ArgMatey.ArgsParser;
 import argmatey.ArgMatey.GnuLongOption;
+import argmatey.ArgMatey.NonparsedArgSink;
 import argmatey.ArgMatey.Option;
-import argmatey.ArgMatey.OptionArgSpec;
+import argmatey.ArgMatey.OptionArgSpecBuilder;
+import argmatey.ArgMatey.OptionBuilder;
+import argmatey.ArgMatey.OptionSink;
 import argmatey.ArgMatey.Options;
-import argmatey.ArgMatey.ParseResultHolder;
 import argmatey.ArgMatey.PosixOption;
 import argmatey.ArgMatey.StringConverter;
 
@@ -26,156 +28,198 @@ public enum Base64Transformer {
 	
 	INSTANCE;
 	
-	public static final class CliOptions extends Options {
+	public static final class Cli {
 		
-		public static final Option DECODE_OPTION = new PosixOption.Builder('d')
-				.doc("decode data")
-				.ordinal(0)
-				.otherBuilders(new GnuLongOption.Builder("decode"))
-				.build();
+		@OptionSink(
+				optionBuilder = @OptionBuilder(
+						doc = "decode data",
+						name = "d",
+						type = PosixOption.class 
+				), 
+				ordinal = 0,
+				otherOptionBuilders = {
+						@OptionBuilder(
+								name = "decode",
+								type = GnuLongOption.class
+						)
+				}
+		)
+		public boolean decode = false;
 		
-		public static final Option IGNORE_GARBAGE_OPTION = 
-				new PosixOption.Builder('i')
-				.doc("when decoding, ignore non-alphabet characters")
-				.ordinal(1)
-				.otherBuilders(new GnuLongOption.Builder("ignore-garbage"))
-				.build();
+		@OptionSink(
+				optionBuilder = @OptionBuilder(
+						doc = "when decoding, ignore non-alphabet characters",
+						name = "i",
+						type = PosixOption.class 
+				), 
+				ordinal = 1,
+				otherOptionBuilders = {
+						@OptionBuilder(
+								name = "ignore-garbage",
+								type = GnuLongOption.class
+						)
+				}
+		)
+		public boolean ignoreGarbage = false;
 		
-		public static final Option WRAP_OPTION = new PosixOption.Builder('w')
-				.doc(String.format(
-						"wrap encoded lines after COLS character (default 76)." 
-						+ "%n      Use 0 to disable line wrapping"))
-				.optionArgSpec(new OptionArgSpec.Builder()
-						.name("COLS")
-						.stringConverter(new StringConverter() {
-
-							@Override
-							public Object convert(String string) {
-								String message = String.format(
-										"must be an integer between "
-										+ "%s (inclusive) and %s (inclusive)", 
-										0,
-										Integer.MAX_VALUE);
-								int intValue;
-								try {
-									intValue = Integer.parseInt(string);
-								} catch (NumberFormatException e) {
-									throw new IllegalArgumentException(
-											message, e);
-								}
-								if (intValue < 0) {
-									throw new IllegalArgumentException(message);
-								}
-								return Integer.valueOf(intValue);
-							}
-							
-						})
-						.build())
-				.ordinal(2)
-				.otherBuilders(new GnuLongOption.Builder("wrap"))
-				.build();
+		@OptionSink(
+				optionBuilder = @OptionBuilder(
+						doc = "wrap encoded lines after COLS character "
+								+ "(default 76)." 
+								+ "\r\n      Use 0 to disable line wrapping",
+						optionArgSpecBuilder = @OptionArgSpecBuilder(
+								name = "COLS",
+								stringConverter = NonnegativeIntegerStringConverter.class
+						),
+						name = "w",
+						type = PosixOption.class 
+				), 
+				ordinal = 2,
+				otherOptionBuilders = {
+						@OptionBuilder(
+								name = "wrap",
+								type = GnuLongOption.class
+						)
+				}
+		)
+		public int wrap = 76;
+				
+		private String file;
+		private final Options options;
+		private final String programName;
+		private final String programVersion;
 		
-		public static final Option HELP_OPTION = new GnuLongOption.Builder(
-				"help")
-				.doc("display this help and exit")
-				.ordinal(3)
-				.special(true)
-				.build();
+		public Cli(
+				final String progName, 
+				final String progVersion, 
+				final Options opts) {
+			this.file = null;
+			this.options = opts;
+			this.programName = progName;
+			this.programVersion = progVersion;
+		}
 		
-		public static final Option VERSION_OPTION = new GnuLongOption.Builder(
-				"version")
-				.doc("display version information and exit")
-				.ordinal(4)
-				.special(true)
-				.build();
+		public String getFile() {
+			return this.file;
+		}
+		
+		@OptionSink(
+				optionBuilder = @OptionBuilder(
+						doc = "display this help and exit",
+						name = "help",
+						special = true,
+						type = GnuLongOption.class 
+				), 
+				ordinal = 3
+		)
+		public void printHelp() {
+			System.out.printf("Usage: %s [OPTION]... [FILE]%n", 
+					this.programName);
+			System.out.printf("Base64 encode or decode FILE, or standard "
+					+ "input, to standard output.%n%n");
+			System.out.println("OPTIONS:");
+			this.options.printHelpText();
+			System.out.printf("%n%nWith no FILE, or when FILE is -, read "
+					+ "standard input.%n");
+			System.exit(0);
+		}
+		
+		@OptionSink(
+				optionBuilder = @OptionBuilder(
+						doc = "display version information and exit",
+						name = "version",
+						special = true,
+						type = GnuLongOption.class 
+				), 
+				ordinal = 4
+		)
+		public void printVersion() {
+			System.out.printf("%s %s%n", this.programName, this.programVersion);
+			System.exit(0);
+		}
+		
+		@NonparsedArgSink
+		public void setFile(final String f) {
+			if (this.file != null) {
+				throw new IllegalArgumentException(
+						String.format("extra operand '%s'", f));
+			}
+			this.file = f;
+		}
+		
+	}
 	
-		public CliOptions() { }
+	public static final class NonnegativeIntegerStringConverter 
+		extends StringConverter {
+
+		public NonnegativeIntegerStringConverter() { }
+		
+		@Override
+		public Object convert(final String string) {
+			String message = String.format(
+					"must be an integer between %s and %s (inclusive)", 
+					0,
+					Integer.MAX_VALUE);
+			int intValue;
+			try {
+				intValue = Integer.parseInt(string);
+			} catch (NumberFormatException e) {
+				throw new IllegalArgumentException(
+						message, e);
+			}
+			if (intValue < 0) {
+				throw new IllegalArgumentException(message);
+			}
+			return Integer.valueOf(intValue);
+		}
 		
 	}
 	
 	public static void main(final String[] args) {
-		Options options = new CliOptions();
-		ArgsParser argsParser = ArgsParser.newInstance(args, options, false);
 		String programName = Base64Transformer.class.getName();
 		String programVersion = "1.0";
+		Options options = Options.newInstance(Cli.class);
+		Cli cli = new Cli(programName, programVersion, options);
+		ArgsParser argsParser = ArgsParser.newInstance(args, options, false);
+		Option helpOption = options.toList().get(3);
 		String suggestion = String.format("Try '%s %s' for more information", 
-				programName, CliOptions.HELP_OPTION.getUsage());
-		boolean decode = false;
-		boolean ignoreGarbage = false;
-		final int defaultNumOfColumnsLimit = 76;
-		int numOfColumnsLimit = defaultNumOfColumnsLimit;
+				programName, helpOption.getUsage());
+		try {
+			argsParser.parseRemainingTo(cli);
+		} catch (RuntimeException e) {
+			System.err.printf("%s: %s%n%s%n", programName, e, suggestion);
+			System.exit(-1);
+		}
 		InputStream in = null;
-		while (argsParser.hasNext()) {
-			ParseResultHolder parseResultHolder = null;
-			try { 
-				parseResultHolder = argsParser.parseNext(); 
-			} catch (RuntimeException e) {
-				System.err.printf("%s: %s%n%s%n", 
-						programName, e.toString(), suggestion);
-				System.exit(-1);
-			}
-			if (parseResultHolder.hasOptionOfAnyOf("-d", "--decode")) {
-				decode = true;
-			}
-			if (parseResultHolder.hasOptionOfAnyOf("-i", "--ignore-garbage")) {
-				ignoreGarbage = true;
-			}
-			if (parseResultHolder.hasOptionOfAnyOf("-w", "--wrap")) {
-				numOfColumnsLimit = 
-						parseResultHolder.getOptionArg().getTypeValue(
-								Integer.class).intValue();
-			}
-			if (parseResultHolder.hasOptionOf("--help")) {
-				System.out.printf("Usage: %s [OPTION]... [FILE]%n", 
-						programName);
-				System.out.printf("Base64 encode or decode FILE, or standard "
-						+ "input, to standard output.%n%n");
-				System.out.println("OPTIONS:");
-				options.printHelpText();
-				System.out.printf("%n%nWith no FILE, or when FILE is -, read "
-						+ "standard input.%n");
-				return;
-			}
-			if (parseResultHolder.hasOptionOf("--version")) {
-				System.out.printf("%s %s%n", programName, programVersion);
-				return;
-			}
-			if (parseResultHolder.hasNonparsedArg()) {
-				String arg = parseResultHolder.getNonparsedArg();
-				if (in != null) {
-					System.err.printf("%s: extra operand '%s'%n%s%n", 
-							programName, arg, suggestion);
+		String file = cli.getFile();
+		if (file != null) {
+			if (file.equals("-")) {
+				in = System.in;
+			} else {
+				File f = new File(file);
+				try {
+					in = new FileInputStream(f);
+				} catch (FileNotFoundException e) {
+					System.err.printf("%s: %s%n", programName, e);
 					System.exit(-1);
 				}
-				if (arg.equals("-")) {
-					in = System.in;
-				} else {
-					File file = new File(arg);
-					try {
-						in = new FileInputStream(file);
-					} catch (FileNotFoundException e) {
-						System.err.printf("%s: %s%n", 
-								programName, e.toString());
-						System.exit(-1);
-					}
-				}
-			}
+			}		
 		}
 		if (in == null) { in = System.in; } 
 		Base64Transformer base64Transformer = Base64Transformer.INSTANCE;
-		if (decode) {
+		if (cli.decode) {
 			Reader reader = new InputStreamReader(in);
 			try {
-				base64Transformer.decode(reader, System.out, ignoreGarbage);
+				base64Transformer.decode(reader, System.out, cli.ignoreGarbage);
 			} catch (IOException e) {
-				System.err.printf("%s: %s%n", programName, e.toString());
+				System.err.printf("%s: %s%n", programName, e);
 				System.exit(-1);
 			} finally {
 				if (in instanceof FileInputStream) {
 					try {
 						in.close();
 					} catch (IOException e) {
-						System.err.printf("%s: %s%n", programName, e.toString());
+						System.err.printf("%s: %s%n", programName, e);
 						System.exit(-1);
 					}
 				}
@@ -183,16 +227,16 @@ public enum Base64Transformer {
 		} else {
 			Writer writer = new OutputStreamWriter(System.out);
 			try {
-				base64Transformer.encode(in, writer, numOfColumnsLimit);
+				base64Transformer.encode(in, writer, cli.wrap);
 			} catch (IOException e) {
-				System.err.printf("%s: %s%n", programName, e.toString());
+				System.err.printf("%s: %s%n", programName, e);
 				System.exit(-1);
 			} finally {
 				if (in instanceof FileInputStream) {
 					try {
 						in.close();
 					} catch (IOException e) {
-						System.err.printf("%s: %s%n", programName, e.toString());
+						System.err.printf("%s: %s%n", programName, e);
 						System.exit(-1);
 					}
 				}
@@ -242,7 +286,7 @@ public enum Base64Transformer {
 			final int numOfColumnsLimit) throws IOException {
 		if (numOfColumnsLimit < 0) {
 			throw new IllegalArgumentException(String.format(
-					"integer must be between %s (inclusive) and %s (inclusive)", 
+					"integer must be between %s and %s (inclusive)", 
 					0, Integer.MAX_VALUE));
 		}
 		final int groupSize = 3;
@@ -253,10 +297,10 @@ public enum Base64Transformer {
 			byte[] b = new byte[groupSize];
 			int newLength = in.read(b);
 			if (newLength == -1) {
-				if (numOfColumnsLimit > 0) {
-					if (numOfColumns > 0 && numOfColumns < numOfColumnsLimit) {
-						writer.write(lineSeparator);
-					}
+				if (numOfColumnsLimit > 0 
+						&& numOfColumns > 0 
+						&& numOfColumns < numOfColumnsLimit) {
+					writer.write(lineSeparator);
 				}
 				break; 
 			}
