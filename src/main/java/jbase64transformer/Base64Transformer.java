@@ -30,6 +30,7 @@ public enum Base64Transformer {
 	
 	public static final class Cli {
 		
+		private ArgsParser argsParser;
 		private int columnLimit;
 		private boolean decodingMode;
 		private String file;
@@ -38,10 +39,11 @@ public enum Base64Transformer {
 		private final String programName;
 		private final String programVersion;
 		
-		Cli(
-				final String progName, 
-				final String progVersion, 
-				final Options opts) {
+		Cli() {
+			Options opts = Options.newInstance(this.getClass());
+			String progName = Base64Transformer.class.getName();
+			String progVersion = "1.0";
+			this.argsParser = null;
 			this.columnLimit = 76;
 			this.decodingMode = false;
 			this.file = null;
@@ -86,22 +88,77 @@ public enum Base64Transformer {
 			System.exit(0);
 		}
 		
-		public int getColumnLimit() {
-			return this.columnLimit;
+		public void process(final String[] args) {
+			Option helpOption = this.options.toList().get(3);
+			String suggestion = String.format(
+					"Try '%s %s' for more information.", 
+					this.programName, 
+					helpOption.getUsage());
+			this.argsParser = ArgsParser.newInstance(args, this.options, false);
+			try {
+				argsParser.parseRemainingTo(this);
+			} catch (RuntimeException e) {
+				System.err.printf(
+						"%s: %s%n%s%n", 
+						this.programName, 
+						e, 
+						suggestion);
+				System.exit(-1);
+			}
+			InputStream in = null;
+			if (this.file != null) {
+				if (this.file.equals("-")) {
+					in = System.in;
+				} else {
+					File f = new File(this.file);
+					try {
+						in = new FileInputStream(f);
+					} catch (FileNotFoundException e) {
+						System.err.printf("%s: %s%n", this.programName, e);
+						System.exit(-1);
+					}
+				}		
+			}
+			if (in == null) { in = System.in; } 
+			Base64Transformer base64Transformer = Base64Transformer.INSTANCE;
+			if (this.decodingMode) {
+				Reader reader = new InputStreamReader(in);
+				try {
+					base64Transformer.decode(
+							reader, System.out, this.garbageIgnored);
+				} catch (IOException e) {
+					System.err.printf("%n%s: %s%n", this.programName, e);
+					System.exit(-1);
+				} finally {
+					if (in instanceof FileInputStream) {
+						try {
+							in.close();
+						} catch (IOException e) {
+							System.err.printf("%s: %s%n", this.programName, e);
+							System.exit(-1);
+						}
+					}
+				}
+			} else {
+				Writer writer = new OutputStreamWriter(System.out);
+				try {
+					base64Transformer.encode(in, writer, this.columnLimit);
+				} catch (IOException e) {
+					System.err.printf("%n%s: %s%n", this.programName, e);
+					System.exit(-1);
+				} finally {
+					if (in instanceof FileInputStream) {
+						try {
+							in.close();
+						} catch (IOException e) {
+							System.err.printf("%s: %s%n", this.programName, e);
+							System.exit(-1);
+						}
+					}
+				}
+			}
 		}
 		
-		public String getFile() {
-			return this.file;
-		}
-		
-		public boolean isDecodingMode() {
-			return this.decodingMode;
-		}
-		
-		public boolean isGarbageIgnored() {
-			return this.garbageIgnored;
-		}
-
 		@OptionSink(
 				optionBuilder = @OptionBuilder(
 						doc = "wrap encoded lines after COLS character "
@@ -147,7 +204,7 @@ public enum Base64Transformer {
 		@NonparsedArgSink
 		public void setFile(final String f) {
 			if (this.file != null) {
-				throw new IllegalStateException(
+				throw new IllegalArgumentException(
 						String.format("extra operand '%s'", f));
 			}
 			this.file = f;
@@ -200,73 +257,8 @@ public enum Base64Transformer {
 	}
 	
 	public static void main(final String[] args) {
-		String programName = Base64Transformer.class.getName();
-		String programVersion = "1.0";
-		Options options = Options.newInstance(Cli.class);
-		Cli cli = new Cli(programName, programVersion, options);
-		ArgsParser argsParser = ArgsParser.newInstance(args, options, false);
-		Option helpOption = options.toList().get(3);
-		String suggestion = String.format("Try '%s %s' for more information.", 
-				programName, helpOption.getUsage());
-		try {
-			argsParser.parseRemainingTo(cli);
-		} catch (RuntimeException e) {
-			System.err.printf("%s: %s%n%s%n", programName, e, suggestion);
-			System.exit(-1);
-		}
-		InputStream in = null;
-		String file = cli.getFile();
-		if (file != null) {
-			if (file.equals("-")) {
-				in = System.in;
-			} else {
-				File f = new File(file);
-				try {
-					in = new FileInputStream(f);
-				} catch (FileNotFoundException e) {
-					System.err.printf("%s: %s%n", programName, e);
-					System.exit(-1);
-				}
-			}		
-		}
-		if (in == null) { in = System.in; } 
-		Base64Transformer base64Transformer = Base64Transformer.INSTANCE;
-		if (cli.isDecodingMode()) {
-			Reader reader = new InputStreamReader(in);
-			try {
-				base64Transformer.decode(
-						reader, System.out, cli.isGarbageIgnored());
-			} catch (IOException e) {
-				System.err.printf("%n%s: %s%n", programName, e);
-				System.exit(-1);
-			} finally {
-				if (in instanceof FileInputStream) {
-					try {
-						in.close();
-					} catch (IOException e) {
-						System.err.printf("%s: %s%n", programName, e);
-						System.exit(-1);
-					}
-				}
-			}
-		} else {
-			Writer writer = new OutputStreamWriter(System.out);
-			try {
-				base64Transformer.encode(in, writer, cli.getColumnLimit());
-			} catch (IOException e) {
-				System.err.printf("%n%s: %s%n", programName, e);
-				System.exit(-1);
-			} finally {
-				if (in instanceof FileInputStream) {
-					try {
-						in.close();
-					} catch (IOException e) {
-						System.err.printf("%s: %s%n", programName, e);
-						System.exit(-1);
-					}
-				}
-			}
-		}
+		Cli cli = new Cli();
+		cli.process(args);
 	}
 	
 	public void decode(
