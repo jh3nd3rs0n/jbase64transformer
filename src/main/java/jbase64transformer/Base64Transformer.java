@@ -30,6 +30,12 @@ public enum Base64Transformer {
 	
 	public static final class Cli {
 		
+		private static final int DECODE_OPTION_ORDINAL = 0;
+		private static final int IGNORE_GARBAGE_OPTION_ORDINAL = 1;
+		private static final int WRAP_OPTION_ORDINAL = 2;
+		private static final int HELP_OPTION_ORDINAL = 3;
+		private static final int VERSION_OPTION_ORDINAL = 4;
+		
 		private ArgsParser argsParser;
 		private int columnLimit;
 		private boolean decodingMode;
@@ -60,7 +66,7 @@ public enum Base64Transformer {
 						special = true,
 						type = GnuLongOption.class 
 				), 
-				ordinal = 3
+				ordinal = HELP_OPTION_ORDINAL
 		)
 		public void displayHelp() {
 			System.out.printf("Usage: %s [OPTION]... [FILE]%n", 
@@ -81,7 +87,7 @@ public enum Base64Transformer {
 						special = true,
 						type = GnuLongOption.class 
 				), 
-				ordinal = 4
+				ordinal = VERSION_OPTION_ORDINAL
 		)
 		public void displayVersion() {
 			System.out.printf("%s %s%n", this.programName, this.programVersion);
@@ -171,7 +177,7 @@ public enum Base64Transformer {
 						name = "w",
 						type = PosixOption.class 
 				), 
-				ordinal = 2,
+				ordinal = WRAP_OPTION_ORDINAL,
 				otherOptionBuilders = {
 						@OptionBuilder(
 								name = "wrap",
@@ -189,7 +195,7 @@ public enum Base64Transformer {
 						name = "d",
 						type = PosixOption.class 
 				), 
-				ordinal = 0,
+				ordinal = DECODE_OPTION_ORDINAL,
 				otherOptionBuilders = {
 						@OptionBuilder(
 								name = "decode",
@@ -216,7 +222,7 @@ public enum Base64Transformer {
 						name = "i",
 						type = PosixOption.class 
 				), 
-				ordinal = 1,
+				ordinal = IGNORE_GARBAGE_OPTION_ORDINAL,
 				otherOptionBuilders = {
 						@OptionBuilder(
 								name = "ignore-garbage",
