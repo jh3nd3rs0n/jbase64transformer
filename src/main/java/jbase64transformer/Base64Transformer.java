@@ -105,11 +105,9 @@ public enum Base64Transformer {
 			try {
 				argsParser.parseRemainingTo(this);
 			} catch (RuntimeException e) {
-				System.err.printf(
-						"%s: %s%n%s%n", 
-						this.programName, 
-						e, 
-						suggestion);
+				System.err.printf("%s: %s%n", this.programName, e);
+				System.err.println(suggestion);
+				e.printStackTrace(System.err);
 				System.exit(-1);
 			}
 			InputStream in = null;
@@ -122,6 +120,7 @@ public enum Base64Transformer {
 						in = new FileInputStream(f);
 					} catch (FileNotFoundException e) {
 						System.err.printf("%s: %s%n", this.programName, e);
+						e.printStackTrace(System.err);
 						System.exit(-1);
 					}
 				}		
@@ -135,6 +134,7 @@ public enum Base64Transformer {
 							reader, System.out, this.garbageIgnored);
 				} catch (IOException e) {
 					System.err.printf("%n%s: %s%n", this.programName, e);
+					e.printStackTrace(System.err);
 					System.exit(-1);
 				} finally {
 					if (in instanceof FileInputStream) {
@@ -142,6 +142,7 @@ public enum Base64Transformer {
 							in.close();
 						} catch (IOException e) {
 							System.err.printf("%s: %s%n", this.programName, e);
+							e.printStackTrace(System.err);
 							System.exit(-1);
 						}
 					}
@@ -152,6 +153,7 @@ public enum Base64Transformer {
 					base64Transformer.encode(in, writer, this.columnLimit);
 				} catch (IOException e) {
 					System.err.printf("%n%s: %s%n", this.programName, e);
+					e.printStackTrace(System.err);
 					System.exit(-1);
 				} finally {
 					if (in instanceof FileInputStream) {
@@ -159,6 +161,7 @@ public enum Base64Transformer {
 							in.close();
 						} catch (IOException e) {
 							System.err.printf("%s: %s%n", this.programName, e);
+							e.printStackTrace(System.err);
 							System.exit(-1);
 						}
 					}
