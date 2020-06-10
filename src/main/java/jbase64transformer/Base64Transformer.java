@@ -95,7 +95,7 @@ public enum Base64Transformer {
 		}
 		
 		public void process(final String[] args) {
-			Option helpOption = this.options.toList().get(3);
+			Option helpOption = this.options.toList().get(HELP_OPTION_ORDINAL);
 			String suggestion = String.format(
 					"Try '%s %s' for more information.", 
 					this.programName, 
