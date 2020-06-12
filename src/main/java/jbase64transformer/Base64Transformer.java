@@ -48,16 +48,14 @@ public enum Base64Transformer {
 		
 		Cli() {
 			Options opts = Options.newInstanceFrom(this.getClass());
-			String progName = Base64Transformer.class.getName();
-			String progVersion = "1.0";
 			this.argsParser = null;
 			this.columnLimit = 76;
 			this.decodingMode = false;
 			this.file = null;
 			this.garbageIgnored = false;
 			this.options = opts;
-			this.programName = progName;
-			this.programVersion = progVersion;
+			this.programName = Base64Transformer.class.getName();
+			this.programVersion = "1.0";
 		}
 		
 		@OptionSink(
