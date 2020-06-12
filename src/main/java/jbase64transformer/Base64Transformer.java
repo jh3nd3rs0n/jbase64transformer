@@ -47,7 +47,7 @@ public enum Base64Transformer {
 		private final String programVersion;
 		
 		Cli() {
-			Options opts = Options.newInstance(this.getClass());
+			Options opts = Options.newInstanceFrom(this.getClass());
 			String progName = Base64Transformer.class.getName();
 			String progVersion = "1.0";
 			this.argsParser = null;
