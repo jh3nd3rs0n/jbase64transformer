@@ -328,7 +328,7 @@ public enum Base64Transformer {
 			byte[] b = new byte[groupSize];
 			int newLength = in.read(b);
 			if (newLength == -1) {
-				if (columnLimit > 0	&& column > 0 && column < columnLimit) {
+				if (columnLimit > 0 && column > 0 && column < columnLimit) {
 					writer.write(lineSeparator);
 				}
 				break; 
