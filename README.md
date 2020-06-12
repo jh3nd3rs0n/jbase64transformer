@@ -38,9 +38,7 @@ To run JBase64Transformer, you can run the following command:
 Be sure to remove or replace the following:
 
 -   Replace `${VERSION}` with the actual version shown within the name of the executable jar file.
-
 -   Remove `[OPTION]...` or replace `[OPTION]...` with one or more of the command line options described in the usage below.
-
 -   Remove `[FILE]` or replace `[FILE]` with the file you would like to be transformed to standard output. (Removing `[FILE]` will cause JBase64Transformer to use standard input as input instead of a file.)
 
 ## Usage
