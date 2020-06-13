@@ -102,10 +102,10 @@ public enum Base64Transformer {
 			this.argsParser = ArgsParser.newInstance(args, this.options, false);
 			try {
 				argsParser.parseRemainingTo(this);
-			} catch (RuntimeException e) {
-				System.err.printf("%s: %s%n", this.programName, e);
+			} catch (Throwable t) {
+				System.err.printf("%s: %s%n", this.programName, t);
 				System.err.println(suggestion);
-				e.printStackTrace(System.err);
+				t.printStackTrace(System.err);
 				System.exit(-1);
 			}
 			InputStream in = null;
