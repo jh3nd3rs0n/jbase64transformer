@@ -7,50 +7,176 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
 
 import org.junit.Test;
 
 public class Base64TransformerTest {
 
-	@Test
-	public void test01() throws IOException {
-		String originalString = "Hello, World";
-		ByteArrayOutputStream encodedOut = new ByteArrayOutputStream();
-		Base64Transformer.INSTANCE.encode(
-				new ByteArrayInputStream(originalString.getBytes()), 
-				new OutputStreamWriter(encodedOut), 
-				126);
-		ByteArrayOutputStream decodedOut = new ByteArrayOutputStream();
-		Base64Transformer.INSTANCE.decode(
-				new InputStreamReader(
-						new ByteArrayInputStream(encodedOut.toByteArray())), 
-				decodedOut, 
-				true);
-		String decodedString = new String(decodedOut.toByteArray());
-		assertEquals(originalString, decodedString);
+	private static final String ENCODED_STRING_01 = "SGVsbG8sIFdvcmxkCg==";
+	private static final String ENCODED_STRING_02 = 
+			"VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wZWQgb3ZlciB0aGUgbGF6eSBkb2cK";
+	private static final String ENCODED_STRING_03 = "R29vZGJ5ZSwgV29ybGQK";
+	private static final String ORIGINAL_STRING_01 = "Hello, World\n";
+	private static final String ORIGINAL_STRING_02 = 
+			"The quick brown fox jumped over the lazy dog\n";
+	private static final String ORIGINAL_STRING_03 = "Goodbye, World\n";
+
+	private static String wrap(final String string, final int columnLimit) {
+		int column = 0;
+		String lineSeparator = System.getProperty("line.separator");
+		StringBuilder sb = new StringBuilder();
+		char[] chars = string.toCharArray();
+		for (int i = 0; i < chars.length; i++) {
+			char c = chars[i];
+			sb.append(c);
+			if (columnLimit > 0) {
+				if (i == chars.length - 1 && column + 1 < columnLimit) {
+					sb.append(lineSeparator);
+				}
+				if (++column == columnLimit) {
+					sb.append(lineSeparator);
+					column = 0;
+				}
+			}
+		}
+		return sb.toString();
 	}
 	
 	@Test
-	public void test02() throws IOException {
-		String originalString = "The quick brown fox jumped over the lazy dog";
-		ByteArrayOutputStream encodedOut = new ByteArrayOutputStream();
-		Base64Transformer.INSTANCE.encode(
-				new ByteArrayInputStream(originalString.getBytes()), 
-				new OutputStreamWriter(encodedOut), 
-				76);
+	public void testDecode01() throws IOException {
+		String expectedString = ORIGINAL_STRING_01;
+		String base64String = ENCODED_STRING_01;
 		ByteArrayOutputStream decodedOut = new ByteArrayOutputStream();
 		Base64Transformer.INSTANCE.decode(
-				new InputStreamReader(
-						new ByteArrayInputStream(encodedOut.toByteArray())), 
+				new StringReader(base64String), 
 				decodedOut, 
 				false);
 		String decodedString = new String(decodedOut.toByteArray());
-		assertEquals(originalString, decodedString);
+		assertEquals(expectedString, decodedString);
 	}
 	
 	@Test
-	public void test03() throws IOException {
-		String originalString = "Goodbye, World";
+	public void testDecode02() throws IOException {
+		String expectedString = ORIGINAL_STRING_02;
+		String base64String = ENCODED_STRING_02;
+		ByteArrayOutputStream decodedOut = new ByteArrayOutputStream();
+		Base64Transformer.INSTANCE.decode(
+				new StringReader(base64String), 
+				decodedOut, 
+				false);
+		String decodedString = new String(decodedOut.toByteArray());
+		assertEquals(expectedString, decodedString);
+	}
+	
+	@Test
+	public void testDecode03() throws IOException {
+		String expectedString = ORIGINAL_STRING_03;
+		String base64String = ENCODED_STRING_03;
+		ByteArrayOutputStream decodedOut = new ByteArrayOutputStream();
+		Base64Transformer.INSTANCE.decode(
+				new StringReader(base64String), 
+				decodedOut, 
+				false);
+		String decodedString = new String(decodedOut.toByteArray());
+		assertEquals(expectedString, decodedString);
+	}
+	
+	@Test(expected = IOException.class)
+	public void testDecodeThrowingIOException01() throws IOException {
+		ByteArrayOutputStream decodedOut = new ByteArrayOutputStream();
+		Base64Transformer.INSTANCE.decode(
+				new StringReader("%SGVsbG8sIFdvcmxkCg=="), 
+				decodedOut, 
+				false);
+	}
+	
+	@Test(expected = IOException.class)
+	public void testDecodeThrowingIOException02() throws IOException {
+		ByteArrayOutputStream decodedOut = new ByteArrayOutputStream();
+		Base64Transformer.INSTANCE.decode(
+				new StringReader(
+						"VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wZWQg!b3ZlciB0aGUgbGF6eSBkb2cK"), 
+				decodedOut, 
+				false);
+	}
+	
+	@Test(expected = IOException.class)
+	public void testDecodeThrowingIOException03() throws IOException {
+		ByteArrayOutputStream decodedOut = new ByteArrayOutputStream();
+		Base64Transformer.INSTANCE.decode(
+				new StringReader("R29vZGJ5ZSwgV29ybGQK&"), 
+				decodedOut, 
+				false);
+	}
+	
+	@Test
+	public void testEncode01() throws IOException {
+		String expectedString = ENCODED_STRING_01;
+		String originalString = ORIGINAL_STRING_01;
+		StringWriter stringWriter = new StringWriter();
+		Base64Transformer.INSTANCE.encode(new ByteArrayInputStream(
+				originalString.getBytes()), stringWriter, 0);
+		assertEquals(expectedString, stringWriter.toString());
+	}
+	
+	@Test
+	public void testEncode02() throws IOException {
+		String expectedString = ENCODED_STRING_02;
+		String originalString = ORIGINAL_STRING_02;
+		StringWriter stringWriter = new StringWriter();
+		Base64Transformer.INSTANCE.encode(new ByteArrayInputStream(
+				originalString.getBytes()), stringWriter, 0);
+		assertEquals(expectedString, stringWriter.toString());
+	}
+	
+	@Test
+	public void testEncode03() throws IOException {
+		String expectedString = ENCODED_STRING_03;
+		String originalString = ORIGINAL_STRING_03;
+		StringWriter stringWriter = new StringWriter();
+		Base64Transformer.INSTANCE.encode(new ByteArrayInputStream(
+				originalString.getBytes()), stringWriter, 0);
+		assertEquals(expectedString, stringWriter.toString());
+	}
+	
+	@Test
+	public void testEncodeWithWrapping01() throws IOException {
+		int columnLimit = 5;
+		String expectedString = wrap(ENCODED_STRING_01, columnLimit);
+		String originalString = ORIGINAL_STRING_01;
+		StringWriter stringWriter = new StringWriter();
+		Base64Transformer.INSTANCE.encode(new ByteArrayInputStream(
+				originalString.getBytes()), stringWriter, columnLimit);
+		assertEquals(expectedString, stringWriter.toString());
+	}
+	
+	@Test
+	public void testEncodeWithWrapping02() throws IOException {
+		int columnLimit = 10;
+		String expectedString = wrap(ENCODED_STRING_02, columnLimit);
+		String originalString = ORIGINAL_STRING_02;
+		StringWriter stringWriter = new StringWriter();
+		Base64Transformer.INSTANCE.encode(new ByteArrayInputStream(
+				originalString.getBytes()), stringWriter, columnLimit);
+		assertEquals(expectedString, stringWriter.toString());
+	}
+	
+	@Test
+	public void testEncodeWithWrapping03() throws IOException {
+		int columnLimit = 20;
+		String expectedString = wrap(ENCODED_STRING_03, columnLimit);
+		String originalString = ORIGINAL_STRING_03;
+		StringWriter stringWriter = new StringWriter();
+		Base64Transformer.INSTANCE.encode(new ByteArrayInputStream(
+				originalString.getBytes()), stringWriter, columnLimit);
+		assertEquals(expectedString, stringWriter.toString());
+	}
+	
+	@Test
+	public void testWithRoundtripping01() throws IOException {
+		String originalString = ORIGINAL_STRING_01;
 		ByteArrayOutputStream encodedOut = new ByteArrayOutputStream();
 		Base64Transformer.INSTANCE.encode(
 				new ByteArrayInputStream(originalString.getBytes()), 
@@ -61,42 +187,19 @@ public class Base64TransformerTest {
 				new InputStreamReader(
 						new ByteArrayInputStream(encodedOut.toByteArray())), 
 				decodedOut, 
-				true);
+				false);
 		String decodedString = new String(decodedOut.toByteArray());
 		assertEquals(originalString, decodedString);
 	}
 	
 	@Test
-	public void test04() throws IOException {
-		StringBuilder sb = new StringBuilder();
-		sb.append("Copyright (c) 2019-2020 Jonathan K. Henderson\n");
-		sb.append("\n");
-		sb.append("Permission is hereby granted, free of charge, to any person\n");
-		sb.append("obtaining a copy of this software and associated documentation\n");
-		sb.append("files (the \"Software\"), to deal in the Software without\n");
-		sb.append("restriction, including without limitation the rights to use,\n");
-		sb.append("copy, modify, merge, publish, distribute, sublicense, and/or sell\n");
-		sb.append("copies of the Software, and to permit persons to whom the\n");
-		sb.append("Software is furnished to do so, subject to the following\n");
-		sb.append("conditions:\n");
-		sb.append("\n");
-		sb.append("The above copyright notice and this permission notice shall be\n");
-		sb.append("included in all copies or substantial portions of the Software.\n");
-		sb.append("\n");
-		sb.append("THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND,\n");
-		sb.append("EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES\n");
-		sb.append("OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND\n");
-		sb.append("NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT\n");
-		sb.append("HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,\n");
-		sb.append("WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\n");
-		sb.append("FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR\n");
-		sb.append("OTHER DEALINGS IN THE SOFTWARE.");
-		String originalString = sb.toString();
+	public void testWithRoundtripping02() throws IOException {
+		String originalString = ORIGINAL_STRING_02;
 		ByteArrayOutputStream encodedOut = new ByteArrayOutputStream();
 		Base64Transformer.INSTANCE.encode(
 				new ByteArrayInputStream(originalString.getBytes()), 
 				new OutputStreamWriter(encodedOut), 
-				10);
+				0);
 		ByteArrayOutputStream decodedOut = new ByteArrayOutputStream();
 		Base64Transformer.INSTANCE.decode(
 				new InputStreamReader(
@@ -106,5 +209,26 @@ public class Base64TransformerTest {
 		String decodedString = new String(decodedOut.toByteArray());
 		assertEquals(originalString, decodedString);
 	}
+	
+	
+	@Test
+	public void testWithRoundtripping03() throws IOException {
+		String originalString = ORIGINAL_STRING_03;
+		ByteArrayOutputStream encodedOut = new ByteArrayOutputStream();
+		Base64Transformer.INSTANCE.encode(
+				new ByteArrayInputStream(originalString.getBytes()), 
+				new OutputStreamWriter(encodedOut), 
+				0);
+		ByteArrayOutputStream decodedOut = new ByteArrayOutputStream();
+		Base64Transformer.INSTANCE.decode(
+				new InputStreamReader(
+						new ByteArrayInputStream(encodedOut.toByteArray())), 
+				decodedOut, 
+				false);
+		String decodedString = new String(decodedOut.toByteArray());
+		assertEquals(originalString, decodedString);
+	}
+	
 
+	
 }
