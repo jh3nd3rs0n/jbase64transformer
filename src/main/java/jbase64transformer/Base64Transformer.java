@@ -15,7 +15,6 @@ import java.util.Base64;
 
 import argmatey.ArgMatey.ArgsParser;
 import argmatey.ArgMatey.GnuLongOption;
-import argmatey.ArgMatey.IllegalArgException;
 import argmatey.ArgMatey.NonparsedArgSink;
 import argmatey.ArgMatey.Option;
 import argmatey.ArgMatey.OptionArgSpecBuilder;
@@ -101,7 +100,7 @@ public enum Base64Transformer {
 					helpOption.getUsage());
 			this.argsParser = ArgsParser.newInstance(args, this.options, false);
 			try {
-				argsParser.parseRemainingTo(this);
+				argsParser.parseRemainingInto(this);
 			} catch (Throwable t) {
 				System.err.printf("%s: %s%n", this.programName, t);
 				System.err.println(suggestion);
@@ -212,8 +211,8 @@ public enum Base64Transformer {
 		@NonparsedArgSink
 		public void setFile(final String f) {
 			if (this.file != null) {
-				throw new IllegalArgException(
-						f, String.format("extra operand '%s'", f));
+				throw new IllegalArgumentException(String.format(
+						"extra operand '%s'", f));
 			}
 			this.file = f;
 		}
