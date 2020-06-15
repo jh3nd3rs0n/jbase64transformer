@@ -100,7 +100,7 @@ public enum Base64Transformer {
 					helpOption.getUsage());
 			this.argsParser = ArgsParser.newInstance(args, this.options, false);
 			try {
-				argsParser.parseRemainingInto(this);
+				argsParser.parseRemainingTo(this);
 			} catch (Throwable t) {
 				System.err.printf("%s: %s%n", this.programName, t);
 				System.err.println(suggestion);
