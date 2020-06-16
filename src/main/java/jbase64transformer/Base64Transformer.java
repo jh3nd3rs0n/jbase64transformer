@@ -60,11 +60,11 @@ public enum Base64Transformer {
 		@OptionSink(
 				optionBuilder = @OptionBuilder(
 						doc = "display this help and exit",
-						name = "help",
+						name = "help", 
+						ordinal = HELP_OPTION_ORDINAL,
 						special = true,
 						type = GnuLongOption.class 
-				), 
-				ordinal = HELP_OPTION_ORDINAL
+				)
 		)
 		public void displayHelp() {
 			System.out.printf("Usage: %s [OPTION]... [FILE]%n", 
@@ -81,11 +81,11 @@ public enum Base64Transformer {
 		@OptionSink(
 				optionBuilder = @OptionBuilder(
 						doc = "display version information and exit",
-						name = "version",
+						name = "version", 
+						ordinal = VERSION_OPTION_ORDINAL,
 						special = true,
 						type = GnuLongOption.class 
-				), 
-				ordinal = VERSION_OPTION_ORDINAL
+				)
 		)
 		public void displayVersion() {
 			System.out.printf("%s %s%n", this.programName, this.programVersion);
@@ -171,14 +171,14 @@ public enum Base64Transformer {
 						doc = "wrap encoded lines after COLS character "
 								+ "(default 76)." 
 								+ "\r\n      Use 0 to disable line wrapping",
+						name = "w",
 						optionArgSpecBuilder = @OptionArgSpecBuilder(
 								name = "COLS",
 								stringConverter = NonnegativeIntegerStringConverter.class
-						),
-						name = "w",
+						), 
+						ordinal = WRAP_OPTION_ORDINAL,
 						type = PosixOption.class 
-				), 
-				ordinal = WRAP_OPTION_ORDINAL,
+				),
 				otherOptionBuilders = {
 						@OptionBuilder(
 								name = "wrap",
@@ -193,10 +193,10 @@ public enum Base64Transformer {
 		@OptionSink(
 				optionBuilder = @OptionBuilder(
 						doc = "decode data",
-						name = "d",
+						name = "d", 
+						ordinal = DECODE_OPTION_ORDINAL,
 						type = PosixOption.class 
-				), 
-				ordinal = DECODE_OPTION_ORDINAL,
+				),
 				otherOptionBuilders = {
 						@OptionBuilder(
 								name = "decode",
@@ -220,10 +220,10 @@ public enum Base64Transformer {
 		@OptionSink(
 				optionBuilder = @OptionBuilder(
 						doc = "when decoding, ignore non-alphabet characters",
-						name = "i",
+						name = "i", 
+						ordinal = IGNORE_GARBAGE_OPTION_ORDINAL,
 						type = PosixOption.class 
-				), 
-				ordinal = IGNORE_GARBAGE_OPTION_ORDINAL,
+				),
 				otherOptionBuilders = {
 						@OptionBuilder(
 								name = "ignore-garbage",
@@ -352,4 +352,5 @@ public enum Base64Transformer {
 	public String toString() {
 		return Base64Transformer.class.getSimpleName();
 	}
+	
 }
