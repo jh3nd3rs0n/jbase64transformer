@@ -42,8 +42,10 @@ public enum Base64Transformer {
 		private String file;
 		private boolean garbageIgnored;
 		private final Options options;
+		private boolean programHelpDisplayed;		
 		private final String programName;
 		private final String programVersion;
+		private boolean programVersionDisplayed;
 		
 		Cli() {
 			Options opts = Options.newInstanceFrom(this.getClass());
@@ -53,8 +55,10 @@ public enum Base64Transformer {
 			this.file = null;
 			this.garbageIgnored = false;
 			this.options = opts;
+			this.programHelpDisplayed = false;
 			this.programName = Base64Transformer.class.getName();
 			this.programVersion = "1.0";
+			this.programVersionDisplayed = false;
 		}
 		
 		@OptionSink(
@@ -75,7 +79,7 @@ public enum Base64Transformer {
 			this.options.printHelpText();
 			System.out.printf("%n%nWith no FILE, or when FILE is -, read "
 					+ "standard input.%n");
-			System.exit(0);
+			this.programHelpDisplayed = true;
 		}
 		
 		@OptionSink(
@@ -89,23 +93,28 @@ public enum Base64Transformer {
 		)
 		public void displayVersion() {
 			System.out.printf("%s %s%n", this.programName, this.programVersion);
-			System.exit(0);
+			this.programVersionDisplayed = true;
 		}
 		
-		public void process(final String[] args) {
+		public int process(final String[] args) {
 			Option helpOption = this.options.toList().get(HELP_OPTION_ORDINAL);
 			String suggestion = String.format(
 					"Try '%s %s' for more information.", 
 					this.programName, 
 					helpOption.getUsage());
 			this.argsParser = ArgsParser.newInstance(args, this.options, false);
-			try {
-				argsParser.parseRemainingTo(this);
-			} catch (Throwable t) {
-				System.err.printf("%s: %s%n", this.programName, t);
-				System.err.println(suggestion);
-				t.printStackTrace(System.err);
-				System.exit(-1);
+			while (this.argsParser.hasNext()) {
+				try {
+					argsParser.parseNextTo(this);
+				} catch (Throwable t) {
+					System.err.printf("%s: %s%n", this.programName, t);
+					System.err.println(suggestion);
+					t.printStackTrace(System.err);
+					return -1;
+				}
+				if (this.programHelpDisplayed || this.programVersionDisplayed) {
+					return 0;
+				}
 			}
 			InputStream in = null;
 			if (this.file != null) {
@@ -118,7 +127,7 @@ public enum Base64Transformer {
 					} catch (FileNotFoundException e) {
 						System.err.printf("%s: %s%n", this.programName, e);
 						e.printStackTrace(System.err);
-						System.exit(-1);
+						return -1;
 					}
 				}		
 			}
@@ -132,7 +141,7 @@ public enum Base64Transformer {
 				} catch (IOException e) {
 					System.err.printf("%n%s: %s%n", this.programName, e);
 					e.printStackTrace(System.err);
-					System.exit(-1);
+					return -1;
 				} finally {
 					if (in instanceof FileInputStream) {
 						try {
@@ -140,7 +149,7 @@ public enum Base64Transformer {
 						} catch (IOException e) {
 							System.err.printf("%s: %s%n", this.programName, e);
 							e.printStackTrace(System.err);
-							System.exit(-1);
+							return -1;
 						}
 					}
 				}
@@ -151,7 +160,7 @@ public enum Base64Transformer {
 				} catch (IOException e) {
 					System.err.printf("%n%s: %s%n", this.programName, e);
 					e.printStackTrace(System.err);
-					System.exit(-1);
+					return -1;
 				} finally {
 					if (in instanceof FileInputStream) {
 						try {
@@ -159,11 +168,12 @@ public enum Base64Transformer {
 						} catch (IOException e) {
 							System.err.printf("%s: %s%n", this.programName, e);
 							e.printStackTrace(System.err);
-							System.exit(-1);
+							return -1;
 						}
 					}
 				}
 			}
+			return 0;
 		}
 		
 		@OptionSink(
@@ -265,7 +275,8 @@ public enum Base64Transformer {
 	
 	public static void main(final String[] args) {
 		Cli cli = new Cli();
-		cli.process(args);
+		int status = cli.process(args);
+		System.exit(status);
 	}
 	
 	public void decode(
