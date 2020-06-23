@@ -116,64 +116,7 @@ public enum Base64Transformer {
 					return 0;
 				}
 			}
-			InputStream in = null;
-			if (this.file != null) {
-				if (this.file.equals("-")) {
-					in = System.in;
-				} else {
-					File f = new File(this.file);
-					try {
-						in = new FileInputStream(f);
-					} catch (FileNotFoundException e) {
-						System.err.printf("%s: %s%n", this.programName, e);
-						e.printStackTrace(System.err);
-						return -1;
-					}
-				}		
-			}
-			if (in == null) { in = System.in; } 
-			Base64Transformer base64Transformer = Base64Transformer.INSTANCE;
-			if (this.decodingMode) {
-				Reader reader = new InputStreamReader(in);
-				try {
-					base64Transformer.decode(
-							reader, System.out, this.garbageIgnored);
-				} catch (IOException e) {
-					System.err.printf("%n%s: %s%n", this.programName, e);
-					e.printStackTrace(System.err);
-					return -1;
-				} finally {
-					if (in instanceof FileInputStream) {
-						try {
-							in.close();
-						} catch (IOException e) {
-							System.err.printf("%s: %s%n", this.programName, e);
-							e.printStackTrace(System.err);
-							return -1;
-						}
-					}
-				}
-			} else {
-				Writer writer = new OutputStreamWriter(System.out);
-				try {
-					base64Transformer.encode(in, writer, this.columnLimit);
-				} catch (IOException e) {
-					System.err.printf("%n%s: %s%n", this.programName, e);
-					e.printStackTrace(System.err);
-					return -1;
-				} finally {
-					if (in instanceof FileInputStream) {
-						try {
-							in.close();
-						} catch (IOException e) {
-							System.err.printf("%s: %s%n", this.programName, e);
-							e.printStackTrace(System.err);
-							return -1;
-						}
-					}
-				}
-			}
-			return 0;
+			return this.transform();
 		}
 		
 		@OptionSink(
@@ -243,6 +186,65 @@ public enum Base64Transformer {
 		)
 		public void setGarbageIgnored(final boolean b) {
 			this.garbageIgnored = b;
+		}
+		
+		private int transform() {
+			InputStream in = null;
+			if (this.file != null) {
+				if (this.file.equals("-")) {
+					in = System.in;
+				} else {
+					File f = new File(this.file);
+					try {
+						in = new FileInputStream(f);
+					} catch (FileNotFoundException e) {
+						System.err.printf("%s: %s%n", this.programName, e);
+						e.printStackTrace(System.err);
+						return -1;
+					}
+				}		
+			}
+			if (in == null) { in = System.in; } 
+			Base64Transformer base64Transformer = Base64Transformer.INSTANCE;
+			if (this.decodingMode) {
+				Reader reader = new InputStreamReader(in);
+				try {
+					base64Transformer.decode(
+							reader, System.out, this.garbageIgnored);
+				} catch (IOException e) {
+					System.err.printf("%n%s: %s%n", this.programName, e);
+					e.printStackTrace(System.err);
+					return -1;
+				} finally {
+					if (in instanceof FileInputStream) {
+						try {
+							in.close();
+						} catch (IOException e) {
+							System.err.printf("%s: %s%n", this.programName, e);
+							e.printStackTrace(System.err);
+						}
+					}
+				}
+			} else {
+				Writer writer = new OutputStreamWriter(System.out);
+				try {
+					base64Transformer.encode(in, writer, this.columnLimit);
+				} catch (IOException e) {
+					System.err.printf("%n%s: %s%n", this.programName, e);
+					e.printStackTrace(System.err);
+					return -1;
+				} finally {
+					if (in instanceof FileInputStream) {
+						try {
+							in.close();
+						} catch (IOException e) {
+							System.err.printf("%s: %s%n", this.programName, e);
+							e.printStackTrace(System.err);
+						}
+					}
+				}
+			}
+			return 0;
 		}
 		
 	}
