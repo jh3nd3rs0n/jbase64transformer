@@ -278,7 +278,7 @@ public enum Base64Transformer {
 	public static void main(final String[] args) {
 		Cli cli = new Cli();
 		int status = cli.process(args);
-		System.exit(status);
+		if (status != 0) { System.exit(status);	}
 	}
 	
 	public void decode(
