@@ -105,7 +105,7 @@ public enum Base64Transformer {
 			this.argsParser = ArgsParser.newInstance(args, this.options, false);
 			while (this.argsParser.hasNext()) {
 				try {
-					argsParser.parseNextTo(this);
+					this.argsParser.parseNext().sendTo(this);
 				} catch (Throwable t) {
 					System.err.printf("%s: %s%n", this.programName, t);
 					System.err.println(suggestion);
