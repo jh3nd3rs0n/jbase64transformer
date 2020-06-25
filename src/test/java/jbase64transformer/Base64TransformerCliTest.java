@@ -13,6 +13,29 @@ import org.junit.Test;
 
 public class Base64TransformerCliTest {
 
+	private static int process(
+			final String[] args, 
+			final PrintStream err, 
+			final InputStream in,
+			final PrintStream out) throws IOException {
+		PrintStream formerErr = System.err;
+		InputStream formerIn = System.in;
+		PrintStream formerOut = System.out;
+		Base64Transformer.Cli cli = new Base64Transformer.Cli();
+		if (err != null) { System.setErr(err); }
+		if (out != null) { System.setOut(out); }
+		if (in != null) { System.setIn(in); } 
+		int status;
+		try {
+			status = cli.process(args);
+		} finally {
+			if (err != null) { System.setErr(formerErr); }
+			if (out != null) { System.setOut(formerOut); }
+			if (in != null) { System.setIn(formerIn); }
+		}
+		return status;
+	}
+	
 	@Test
 	public void test01() throws IOException {
 		String lineSeparator = System.getProperty("line.separator");
@@ -21,17 +44,7 @@ public class Base64TransformerCliTest {
 		InputStream in = new ByteArrayInputStream(originalString.getBytes());
 		ByteArrayOutputStream encodedOut = new ByteArrayOutputStream();
 		PrintStream out = new PrintStream(encodedOut);
-		InputStream formerIn = System.in;
-		PrintStream formerOut = System.out;
-		Base64Transformer.Cli cli = new Base64Transformer.Cli();
-		System.setOut(out);
-		System.setIn(in);
-		try {
-			cli.process(new String[] { });
-		} finally {
-			System.setOut(formerOut);
-			System.setIn(formerIn);
-		}
+		process(new String[] { }, null, in, out);
 		String encodedString = new String(encodedOut.toByteArray());
 		assertEquals(expectedString, encodedString);
 	}
@@ -44,17 +57,7 @@ public class Base64TransformerCliTest {
 		InputStream in = new ByteArrayInputStream(originalString.getBytes());
 		ByteArrayOutputStream encodedOut = new ByteArrayOutputStream();
 		PrintStream out = new PrintStream(encodedOut);
-		InputStream formerIn = System.in;
-		PrintStream formerOut = System.out;
-		Base64Transformer.Cli cli = new Base64Transformer.Cli();
-		System.setOut(out);
-		System.setIn(in);
-		try {
-			cli.process(new String[] { });
-		} finally {
-			System.setOut(formerOut);
-			System.setIn(formerIn);
-		}
+		process(new String[] { }, null, in, out);
 		String encodedString = new String(encodedOut.toByteArray());
 		assertEquals(expectedString, encodedString);
 	}
@@ -67,17 +70,7 @@ public class Base64TransformerCliTest {
 		InputStream in = new ByteArrayInputStream(originalString.getBytes());
 		ByteArrayOutputStream encodedOut = new ByteArrayOutputStream();
 		PrintStream out = new PrintStream(encodedOut);
-		InputStream formerIn = System.in;
-		PrintStream formerOut = System.out;
-		Base64Transformer.Cli cli = new Base64Transformer.Cli();
-		System.setOut(out);
-		System.setIn(in);
-		try {
-			cli.process(new String[] { });
-		} finally {
-			System.setOut(formerOut);
-			System.setIn(formerIn);
-		}
+		process(new String[] { }, null, in, out);
 		String encodedString = new String(encodedOut.toByteArray());
 		assertEquals(expectedString, encodedString);
 	}
@@ -87,21 +80,7 @@ public class Base64TransformerCliTest {
 		PrintStream err = new PrintStream(new ByteArrayOutputStream());
 		InputStream in = new ByteArrayInputStream(new byte[] { });
 		PrintStream out = new PrintStream(new ByteArrayOutputStream());
-		PrintStream formerErr = System.err;
-		InputStream formerIn = System.in;
-		PrintStream formerOut = System.out;
-		Base64Transformer.Cli cli = new Base64Transformer.Cli();
-		System.setErr(err);
-		System.setOut(out);
-		System.setIn(in);
-		int status;
-		try {
-			status = cli.process(new String[] { "--bogus" });
-		} finally {
-			System.setErr(formerErr);
-			System.setOut(formerOut);
-			System.setIn(formerIn);
-		}
+		int status = process(new String[] { "--bogus" }, err, in, out);
 		assertTrue(status != 0);
 	}
 	
@@ -112,17 +91,7 @@ public class Base64TransformerCliTest {
 		InputStream in = new ByteArrayInputStream(base64String.getBytes());
 		ByteArrayOutputStream decodedOut = new ByteArrayOutputStream();
 		PrintStream out = new PrintStream(decodedOut);
-		InputStream formerIn = System.in;
-		PrintStream formerOut = System.out;
-		Base64Transformer.Cli cli = new Base64Transformer.Cli();
-		System.setOut(out);
-		System.setIn(in);
-		try {
-			cli.process(new String[] { "-d" });
-		} finally {
-			System.setOut(formerOut);
-			System.setIn(formerIn);
-		}
+		process(new String[] { "-d" }, null, in, out);
 		String decodedString = new String(decodedOut.toByteArray());
 		assertEquals(expectedString, decodedString);
 	}
@@ -134,17 +103,7 @@ public class Base64TransformerCliTest {
 		InputStream in = new ByteArrayInputStream(base64String.getBytes());
 		ByteArrayOutputStream decodedOut = new ByteArrayOutputStream();
 		PrintStream out = new PrintStream(decodedOut);
-		InputStream formerIn = System.in;
-		PrintStream formerOut = System.out;
-		Base64Transformer.Cli cli = new Base64Transformer.Cli();
-		System.setOut(out);
-		System.setIn(in);
-		try {
-			cli.process(new String[] { "-d" });
-		} finally {
-			System.setOut(formerOut);
-			System.setIn(formerIn);
-		}
+		process(new String[] { "-d" }, null, in, out);
 		String decodedString = new String(decodedOut.toByteArray());
 		assertEquals(expectedString, decodedString);
 	}
@@ -156,17 +115,7 @@ public class Base64TransformerCliTest {
 		InputStream in = new ByteArrayInputStream(base64String.getBytes());
 		ByteArrayOutputStream decodedOut = new ByteArrayOutputStream();
 		PrintStream out = new PrintStream(decodedOut);
-		InputStream formerIn = System.in;
-		PrintStream formerOut = System.out;
-		Base64Transformer.Cli cli = new Base64Transformer.Cli();
-		System.setOut(out);
-		System.setIn(in);
-		try {
-			cli.process(new String[] { "--decode" });
-		} finally {
-			System.setOut(formerOut);
-			System.setIn(formerIn);
-		}
+		process(new String[] { "--decode" }, null, in, out);
 		String decodedString = new String(decodedOut.toByteArray());
 		assertEquals(expectedString, decodedString);
 	}
@@ -180,17 +129,7 @@ public class Base64TransformerCliTest {
 				base64StringWithGarbage.getBytes());
 		ByteArrayOutputStream decodedOut = new ByteArrayOutputStream();
 		PrintStream out = new PrintStream(decodedOut);
-		InputStream formerIn = System.in;
-		PrintStream formerOut = System.out;
-		Base64Transformer.Cli cli = new Base64Transformer.Cli();
-		System.setOut(out);
-		System.setIn(in);
-		try {
-			cli.process(new String[] { "-d", "-i" });
-		} finally {
-			System.setOut(formerOut);
-			System.setIn(formerIn);
-		}
+		process(new String[] { "-d", "-i" }, null, in, out);
 		String decodedString = new String(decodedOut.toByteArray());
 		assertEquals(expectedString, decodedString);
 	}
@@ -204,17 +143,7 @@ public class Base64TransformerCliTest {
 				base64StringWithGarbage.getBytes());
 		ByteArrayOutputStream decodedOut = new ByteArrayOutputStream();
 		PrintStream out = new PrintStream(decodedOut);
-		InputStream formerIn = System.in;
-		PrintStream formerOut = System.out;
-		Base64Transformer.Cli cli = new Base64Transformer.Cli();
-		System.setOut(out);
-		System.setIn(in);
-		try {
-			cli.process(new String[] { "-di" });
-		} finally {
-			System.setOut(formerOut);
-			System.setIn(formerIn);
-		}
+		process(new String[] { "-di" }, null, in, out);
 		String decodedString = new String(decodedOut.toByteArray());
 		assertEquals(expectedString, decodedString);
 	}
@@ -228,17 +157,7 @@ public class Base64TransformerCliTest {
 				base64StringWithGarbage.getBytes());
 		ByteArrayOutputStream decodedOut = new ByteArrayOutputStream();
 		PrintStream out = new PrintStream(decodedOut);
-		InputStream formerIn = System.in;
-		PrintStream formerOut = System.out;
-		Base64Transformer.Cli cli = new Base64Transformer.Cli();
-		System.setOut(out);
-		System.setIn(in);
-		try {
-			cli.process(new String[] { "--decode", "--ignore-garbage" });
-		} finally {
-			System.setOut(formerOut);
-			System.setIn(formerIn);
-		}
+		process(new String[] { "--decode", "--ignore-garbage" }, null, in, out);
 		String decodedString = new String(decodedOut.toByteArray());
 		assertEquals(expectedString, decodedString);		
 	}
@@ -251,21 +170,7 @@ public class Base64TransformerCliTest {
 		InputStream in = new ByteArrayInputStream(
 				base64StringWithGarbage.getBytes());
 		PrintStream out = new PrintStream(new ByteArrayOutputStream());
-		PrintStream formerErr = System.err;
-		InputStream formerIn = System.in;
-		PrintStream formerOut = System.out;
-		Base64Transformer.Cli cli = new Base64Transformer.Cli();
-		System.setErr(err);
-		System.setOut(out);
-		System.setIn(in);
-		int status;
-		try {
-			status = cli.process(new String[] { "-d" });
-		} finally {
-			System.setErr(formerErr);
-			System.setOut(formerOut);
-			System.setIn(formerIn);
-		}
+		int status = process(new String[] { "-d" }, err, in, out);
 		assertTrue(status != 0);
 	}
 	
@@ -277,21 +182,7 @@ public class Base64TransformerCliTest {
 		InputStream in = new ByteArrayInputStream(
 				base64StringWithGarbage.getBytes());
 		PrintStream out = new PrintStream(new ByteArrayOutputStream());
-		PrintStream formerErr = System.err;
-		InputStream formerIn = System.in;
-		PrintStream formerOut = System.out;
-		Base64Transformer.Cli cli = new Base64Transformer.Cli();
-		System.setErr(err);
-		System.setOut(out);
-		System.setIn(in);
-		int status;
-		try {
-			status = cli.process(new String[] { "-d" });
-		} finally {
-			System.setErr(formerErr);
-			System.setOut(formerOut);
-			System.setIn(formerIn);
-		}
+		int status = process(new String[] { "-d" }, err, in, out);
 		assertTrue(status != 0);
 	}
 	
@@ -303,21 +194,7 @@ public class Base64TransformerCliTest {
 		InputStream in = new ByteArrayInputStream(
 				base64StringWithGarbage.getBytes());
 		PrintStream out = new PrintStream(new ByteArrayOutputStream());
-		PrintStream formerErr = System.err;
-		InputStream formerIn = System.in;
-		PrintStream formerOut = System.out;
-		Base64Transformer.Cli cli = new Base64Transformer.Cli();
-		System.setErr(err);
-		System.setOut(out);
-		System.setIn(in);
-		int status;
-		try {
-			status = cli.process(new String[] { "--decode" });
-		} finally {
-			System.setErr(formerErr);
-			System.setOut(formerOut);
-			System.setIn(formerIn);
-		}
+		int status = process(new String[] { "--decode" }, err, in, out);
 		assertTrue(status != 0);		
 	}
 	
@@ -344,14 +221,7 @@ public class Base64TransformerCliTest {
 		String expectedString = sb.toString();
 		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
 		PrintStream out = new PrintStream(bytesOut);
-		PrintStream formerOut = System.out;
-		Base64Transformer.Cli cli = new Base64Transformer.Cli();
-		System.setOut(out);
-		try {
-			cli.process(new String[] { "--help" });
-		} finally {
-			System.setOut(formerOut);
-		}
+		process(new String[] { "--help" }, null, null, out);
 		String actualString = new String(bytesOut.toByteArray());
 		assertEquals(expectedString, actualString);
 	}
@@ -362,14 +232,7 @@ public class Base64TransformerCliTest {
 				"jbase64transformer.Base64Transformer 1.0%n");
 		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
 		PrintStream out = new PrintStream(bytesOut);
-		PrintStream formerOut = System.out;
-		Base64Transformer.Cli cli = new Base64Transformer.Cli();
-		System.setOut(out);
-		try {
-			cli.process(new String[] { "--version" });
-		} finally {
-			System.setOut(formerOut);
-		}
+		process(new String[] { "--version" }, null, null, out);
 		String actualString = new String(bytesOut.toByteArray());
 		assertEquals(expectedString, actualString);
 	}
@@ -383,17 +246,7 @@ public class Base64TransformerCliTest {
 		InputStream in = new ByteArrayInputStream(originalString.getBytes());
 		ByteArrayOutputStream encodedOut = new ByteArrayOutputStream();
 		PrintStream out = new PrintStream(encodedOut);
-		InputStream formerIn = System.in;
-		PrintStream formerOut = System.out;
-		Base64Transformer.Cli cli = new Base64Transformer.Cli();
-		System.setOut(out);
-		System.setIn(in);
-		try {
-			cli.process(new String[] { "-w", Integer.toString(columnLimit) });
-		} finally {
-			System.setOut(formerOut);
-			System.setIn(formerIn);
-		}
+		process(new String[] { "-w", Integer.toString(columnLimit) }, null, in, out);
 		String encodedString = new String(encodedOut.toByteArray());
 		assertEquals(expectedString, encodedString);
 	}
@@ -407,17 +260,7 @@ public class Base64TransformerCliTest {
 		InputStream in = new ByteArrayInputStream(originalString.getBytes());
 		ByteArrayOutputStream encodedOut = new ByteArrayOutputStream();
 		PrintStream out = new PrintStream(encodedOut);
-		InputStream formerIn = System.in;
-		PrintStream formerOut = System.out;
-		Base64Transformer.Cli cli = new Base64Transformer.Cli();
-		System.setOut(out);
-		System.setIn(in);
-		try {
-			cli.process(new String[] { String.format("-w%s", columnLimit) });
-		} finally {
-			System.setOut(formerOut);
-			System.setIn(formerIn);
-		}
+		process(new String[] { String.format("-w%s", columnLimit) }, null, in, out);
 		String encodedString = new String(encodedOut.toByteArray());
 		assertEquals(expectedString, encodedString);
 	}
@@ -431,17 +274,7 @@ public class Base64TransformerCliTest {
 		InputStream in = new ByteArrayInputStream(originalString.getBytes());
 		ByteArrayOutputStream encodedOut = new ByteArrayOutputStream();
 		PrintStream out = new PrintStream(encodedOut);
-		InputStream formerIn = System.in;
-		PrintStream formerOut = System.out;
-		Base64Transformer.Cli cli = new Base64Transformer.Cli();
-		System.setOut(out);
-		System.setIn(in);
-		try {
-			cli.process(new String[] { String.format("--wrap=%s", columnLimit) });
-		} finally {
-			System.setOut(formerOut);
-			System.setIn(formerIn);
-		}
+		process(new String[] { String.format("--wrap=%s", columnLimit) }, null, in, out);
 		String encodedString = new String(encodedOut.toByteArray());
 		assertEquals(expectedString, encodedString);
 	}
