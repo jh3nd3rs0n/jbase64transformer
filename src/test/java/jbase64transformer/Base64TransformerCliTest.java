@@ -200,25 +200,7 @@ public class Base64TransformerCliTest {
 	
 	@Test
 	public void testWithHelpOption() throws IOException {
-		StringBuilder sb = new StringBuilder();
-		sb.append(String.format("Usage: jbase64transformer.Base64Transformer [OPTION]... [FILE]%n"));
-		sb.append(String.format("Base64 encode or decode FILE, or standard input, to standard output.%n"));
-		sb.append(String.format("%n"));
-		sb.append(String.format("OPTIONS:%n"));
-		sb.append(String.format("  -d, --decode%n"));
-		sb.append(String.format("      decode data%n"));
-		sb.append(String.format("  -i, --ignore-garbage%n"));
-		sb.append(String.format("      when decoding, ignore non-alphabet characters%n"));
-		sb.append(String.format("  -w COLS, --wrap=COLS%n"));
-		sb.append(String.format("      wrap encoded lines after COLS character (default 76).\r\n"));
-		sb.append(String.format("      Use 0 to disable line wrapping%n"));
-		sb.append(String.format("  --help%n"));
-		sb.append(String.format("      display this help and exit%n"));
-		sb.append(String.format("  --version%n"));
-		sb.append(String.format("      display version information and exit%n"));
-		sb.append(String.format("%n"));
-		sb.append(String.format("With no FILE, or when FILE is -, read standard input.%n"));
-		String expectedString = sb.toString();
+		String expectedString = TestStringConstants.HELP_INFO_STRING;
 		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
 		PrintStream out = new PrintStream(bytesOut);
 		process(new String[] { "--help" }, null, null, out);
@@ -227,12 +209,71 @@ public class Base64TransformerCliTest {
 	}
 	
 	@Test
+	public void testWithHelpOptionFirst01() throws IOException {
+		String expectedString = TestStringConstants.HELP_INFO_STRING;
+		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+		PrintStream out = new PrintStream(bytesOut);
+		process(new String[] { "--help", "--bogus" }, null, null, out);
+		String actualString = new String(bytesOut.toByteArray());
+		assertEquals(expectedString, actualString);
+	}
+	
+	@Test
+	public void testWithHelpOptionFirst02() throws IOException {
+		String expectedString = TestStringConstants.HELP_INFO_STRING;
+		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+		PrintStream out = new PrintStream(bytesOut);
+		process(new String[] { "--help", "-diw50" }, null, null, out);
+		String actualString = new String(bytesOut.toByteArray());
+		assertEquals(expectedString, actualString);
+	}
+	
+	@Test
+	public void testWithHelpOptionFirst03() throws IOException {
+		String expectedString = TestStringConstants.HELP_INFO_STRING;
+		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+		PrintStream out = new PrintStream(bytesOut);
+		process(new String[] { "--help", "--version" }, null, null, out);
+		String actualString = new String(bytesOut.toByteArray());
+		assertEquals(expectedString, actualString);
+	}
+	
+	@Test
 	public void testWithVersionOption() throws IOException {
-		String expectedString = String.format(
-				"jbase64transformer.Base64Transformer 1.0%n");
+		String expectedString = TestStringConstants.VERSION_INFO_STRING;
 		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
 		PrintStream out = new PrintStream(bytesOut);
 		process(new String[] { "--version" }, null, null, out);
+		String actualString = new String(bytesOut.toByteArray());
+		assertEquals(expectedString, actualString);
+	}
+	
+	@Test
+	public void testWithVersionOptionFirst01() throws IOException {
+		String expectedString = TestStringConstants.VERSION_INFO_STRING;
+		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+		PrintStream out = new PrintStream(bytesOut);
+		process(new String[] { "--version", "--bogus" }, null, null, out);
+		String actualString = new String(bytesOut.toByteArray());
+		assertEquals(expectedString, actualString);
+	}
+	
+	@Test
+	public void testWithVersionOptionFirst02() throws IOException {
+		String expectedString = TestStringConstants.VERSION_INFO_STRING;
+		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+		PrintStream out = new PrintStream(bytesOut);
+		process(new String[] { "--version", "-diw50" }, null, null, out);
+		String actualString = new String(bytesOut.toByteArray());
+		assertEquals(expectedString, actualString);
+	}
+	
+	@Test
+	public void testWithVersionOptionFirst03() throws IOException {
+		String expectedString = TestStringConstants.VERSION_INFO_STRING;
+		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+		PrintStream out = new PrintStream(bytesOut);
+		process(new String[] { "--version", "--help" }, null, null, out);
 		String actualString = new String(bytesOut.toByteArray());
 		assertEquals(expectedString, actualString);
 	}
