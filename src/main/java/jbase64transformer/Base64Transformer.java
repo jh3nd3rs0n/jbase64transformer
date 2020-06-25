@@ -207,10 +207,9 @@ public enum Base64Transformer {
 			if (in == null) { in = System.in; } 
 			Base64Transformer base64Transformer = Base64Transformer.INSTANCE;
 			if (this.decodingMode) {
-				Reader reader = new InputStreamReader(in);
 				try {
 					base64Transformer.decode(
-							reader, System.out, this.garbageIgnored);
+							in, System.out, this.garbageIgnored);
 				} catch (IOException e) {
 					System.err.printf("%n%s: %s%n", this.programName, e);
 					e.printStackTrace(System.err);
@@ -226,9 +225,8 @@ public enum Base64Transformer {
 					}
 				}
 			} else {
-				Writer writer = new OutputStreamWriter(System.out);
 				try {
-					base64Transformer.encode(in, writer, this.columnLimit);
+					base64Transformer.encode(in, System.out, this.columnLimit);
 				} catch (IOException e) {
 					System.err.printf("%n%s: %s%n", this.programName, e);
 					e.printStackTrace(System.err);
@@ -282,9 +280,10 @@ public enum Base64Transformer {
 	}
 	
 	public void decode(
-			final Reader reader, 
+			final InputStream in, 
 			final OutputStream out, 
 			final boolean garbageIgnored) throws IOException {
+		Reader reader = new InputStreamReader(in);
 		StringBuilder sb = new StringBuilder();
 		Base64.Decoder decoder = Base64.getDecoder();
 		String base64AlphabetChars = 
@@ -323,13 +322,14 @@ public enum Base64Transformer {
 	
 	public void encode(
 			final InputStream in,
-			final Writer writer,
+			final OutputStream out,
 			final int columnLimit) throws IOException {
 		if (columnLimit < 0) {
 			throw new IllegalArgumentException(String.format(
 					"integer must be between %s and %s (inclusive)", 
 					0, Integer.MAX_VALUE));
 		}
+		Writer writer = new OutputStreamWriter(out);
 		final int groupSize = 3;
 		int column = 0;
 		String lineSeparator = System.getProperty("line.separator");
