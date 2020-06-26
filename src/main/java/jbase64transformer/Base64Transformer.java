@@ -21,6 +21,7 @@ import argmatey.ArgMatey.OptionArgSpecBuilder;
 import argmatey.ArgMatey.OptionBuilder;
 import argmatey.ArgMatey.OptionSink;
 import argmatey.ArgMatey.Options;
+import argmatey.ArgMatey.ParseResultHolder;
 import argmatey.ArgMatey.PosixOption;
 import argmatey.ArgMatey.StringConverter;
 
@@ -105,7 +106,9 @@ public enum Base64Transformer {
 			this.argsParser = ArgsParser.newInstance(args, this.options, false);
 			while (this.argsParser.hasNext()) {
 				try {
-					this.argsParser.parseNext().sendTo(this);
+					ParseResultHolder parseResultHolder = 
+							this.argsParser.parseNext();
+					parseResultHolder.sendTo(this);
 				} catch (Throwable t) {
 					System.err.printf("%s: %s%n", this.programName, t);
 					System.err.println(suggestion);
