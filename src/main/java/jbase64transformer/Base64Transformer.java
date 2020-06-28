@@ -20,8 +20,8 @@ import argmatey.ArgMatey.Option;
 import argmatey.ArgMatey.OptionArgSpecBuilder;
 import argmatey.ArgMatey.OptionBuilder;
 import argmatey.ArgMatey.OptionSink;
-import argmatey.ArgMatey.Options;
 import argmatey.ArgMatey.ParseResultHolder;
+import argmatey.ArgMatey.ParseResultSink;
 import argmatey.ArgMatey.PosixOption;
 import argmatey.ArgMatey.StringConverter;
 
@@ -29,7 +29,7 @@ public enum Base64Transformer {
 	
 	INSTANCE;
 	
-	public static final class Cli {
+	public static final class Cli extends ParseResultSink {
 		
 		private static final int DECODE_OPTION_ORDINAL = 0;
 		private static final int IGNORE_GARBAGE_OPTION_ORDINAL = 1;
@@ -42,20 +42,17 @@ public enum Base64Transformer {
 		private boolean decodingMode;
 		private String file;
 		private boolean garbageIgnored;
-		private final Options options;
 		private boolean programHelpDisplayed;		
 		private final String programName;
 		private final String programVersion;
 		private boolean programVersionDisplayed;
 		
 		Cli() {
-			Options opts = Options.newInstanceFrom(this.getClass());
 			this.argsParser = null;
 			this.columnLimit = 76;
 			this.decodingMode = false;
 			this.file = null;
 			this.garbageIgnored = false;
-			this.options = opts;
 			this.programHelpDisplayed = false;
 			this.programName = Base64Transformer.class.getName();
 			this.programVersion = "1.0";
@@ -77,7 +74,7 @@ public enum Base64Transformer {
 			System.out.printf("Base64 encode or decode FILE, or standard "
 					+ "input, to standard output.%n%n");
 			System.out.println("OPTIONS:");
-			this.options.printHelpText();
+			this.getOptions().printHelpText();
 			System.out.printf("%n%nWith no FILE, or when FILE is -, read "
 					+ "standard input.%n");
 			this.programHelpDisplayed = true;
@@ -98,17 +95,19 @@ public enum Base64Transformer {
 		}
 		
 		public int process(final String[] args) {
-			Option helpOption = this.options.toList().get(HELP_OPTION_ORDINAL);
+			Option helpOption = this.getOptions().toList().get(
+					HELP_OPTION_ORDINAL);
 			String suggestion = String.format(
 					"Try '%s %s' for more information.", 
 					this.programName, 
 					helpOption.getUsage());
-			this.argsParser = ArgsParser.newInstance(args, this.options, false);
+			this.argsParser = ArgsParser.newInstance(
+					args, this.getOptions(), false);
 			while (this.argsParser.hasNext()) {
 				try {
 					ParseResultHolder parseResultHolder = 
 							this.argsParser.parseNext();
-					parseResultHolder.sendTo(this);
+					this.receive(parseResultHolder);
 				} catch (Throwable t) {
 					System.err.printf("%s: %s%n", this.programName, t);
 					System.err.println(suggestion);
