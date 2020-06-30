@@ -19,7 +19,7 @@ import argmatey.ArgMatey.NonparsedArgSink;
 import argmatey.ArgMatey.Option;
 import argmatey.ArgMatey.OptionArgSpecBuilder;
 import argmatey.ArgMatey.OptionBuilder;
-import argmatey.ArgMatey.OptionSink;
+import argmatey.ArgMatey.OptionOccurrenceSink;
 import argmatey.ArgMatey.Options;
 import argmatey.ArgMatey.ParseResultHolder;
 import argmatey.ArgMatey.ParseResultSinkObject;
@@ -67,7 +67,7 @@ public enum Base64Transformer {
 			this.programVersionDisplayed = false;
 		}
 		
-		@OptionSink(
+		@OptionOccurrenceSink(
 				optionBuilder = @OptionBuilder(
 						doc = "display this help and exit",
 						name = "help", 
@@ -88,7 +88,7 @@ public enum Base64Transformer {
 			this.programHelpDisplayed = true;
 		}
 		
-		@OptionSink(
+		@OptionOccurrenceSink(
 				optionBuilder = @OptionBuilder(
 						doc = "display version information and exit",
 						name = "version", 
@@ -128,7 +128,7 @@ public enum Base64Transformer {
 			return this.transform();
 		}
 		
-		@OptionSink(
+		@OptionOccurrenceSink(
 				optionBuilder = @OptionBuilder(
 						doc = "wrap encoded lines after COLS character "
 								+ "(default 76)." 
@@ -152,7 +152,7 @@ public enum Base64Transformer {
 			this.columnLimit = colLimit;
 		}
 		
-		@OptionSink(
+		@OptionOccurrenceSink(
 				optionBuilder = @OptionBuilder(
 						doc = "decode data",
 						name = "d", 
@@ -179,7 +179,7 @@ public enum Base64Transformer {
 			this.file = f;
 		}
 
-		@OptionSink(
+		@OptionOccurrenceSink(
 				optionBuilder = @OptionBuilder(
 						doc = "when decoding, ignore non-alphabet characters",
 						name = "i", 
