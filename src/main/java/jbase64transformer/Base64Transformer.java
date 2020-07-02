@@ -13,16 +13,14 @@ import java.io.Writer;
 import java.util.Arrays;
 import java.util.Base64;
 
-import argmatey.ArgMatey.ArgsParser;
+import argmatey.ArgMatey;
+import argmatey.ArgMatey.Annotations.NonparsedArg;
+import argmatey.ArgMatey.Annotations.Option;
+import argmatey.ArgMatey.Annotations.OptionArgSpec;
+import argmatey.ArgMatey.Annotations.OptionGroup;
+import argmatey.ArgMatey.ArgsHandler;
 import argmatey.ArgMatey.GnuLongOption;
-import argmatey.ArgMatey.NonparsedArgSink;
-import argmatey.ArgMatey.Option;
-import argmatey.ArgMatey.OptionArgSpecBuilder;
-import argmatey.ArgMatey.OptionBuilder;
-import argmatey.ArgMatey.OptionOccurrenceSink;
-import argmatey.ArgMatey.Options;
-import argmatey.ArgMatey.ParseResultHolder;
-import argmatey.ArgMatey.ParseResultSinkObject;
+import argmatey.ArgMatey.OptionGroups;
 import argmatey.ArgMatey.PosixOption;
 import argmatey.ArgMatey.StringConverter;
 
@@ -32,49 +30,44 @@ public enum Base64Transformer {
 	
 	public static final class Cli {
 		
-		private static final int DECODE_OPTION_ORDINAL = 0;
-		private static final int IGNORE_GARBAGE_OPTION_ORDINAL = 1;
-		private static final int WRAP_OPTION_ORDINAL = 2;
-		private static final int HELP_OPTION_ORDINAL = 3;
-		private static final int VERSION_OPTION_ORDINAL = 4;
+		private static final int DECODE_OPTION_GROUP_ORDINAL = 0;
+		private static final int IGNORE_GARBAGE_OPTION_GROUP_ORDINAL = 1;
+		private static final int WRAP_OPTION_GROUP_ORDINAL = 2;
+		private static final int HELP_OPTION_GROUP_ORDINAL = 3;
+		private static final int VERSION_OPTION_GROUP_ORDINAL = 4;
 		
-		private ArgsParser argsParser;
+		private ArgsHandler argsHandler;
 		private int columnLimit;
 		private boolean decodingMode;
 		private String file;
 		private boolean garbageIgnored;
-		private final Options options;
-		private final ParseResultSinkObject parseResultSinkObject;
+		private OptionGroups optionGroups;
 		private boolean programHelpDisplayed;		
 		private final String programName;
 		private final String programVersion;
 		private boolean programVersionDisplayed;
 		
 		Cli() {
-			ParseResultSinkObject parseResultSinkObj = 
-					ParseResultSinkObject.newInstance(this);
-			Options opts = parseResultSinkObj.getOptions();
-			this.argsParser = null;
+			this.argsHandler = null;
 			this.columnLimit = 76;
 			this.decodingMode = false;
 			this.file = null;
 			this.garbageIgnored = false;
-			this.options = opts;
-			this.parseResultSinkObject = parseResultSinkObj;
+			this.optionGroups = null;
 			this.programHelpDisplayed = false;
 			this.programName = Base64Transformer.class.getName();
 			this.programVersion = "1.0";
 			this.programVersionDisplayed = false;
 		}
 		
-		@OptionOccurrenceSink(
-				optionBuilder = @OptionBuilder(
+		 
+		@OptionGroup(
+				option = @Option(
 						doc = "display this help and exit",
 						name = "help", 
-						ordinal = HELP_OPTION_ORDINAL,
 						special = true,
-						type = GnuLongOption.class 
-				)
+						type = GnuLongOption.class),
+				ordinal = HELP_OPTION_GROUP_ORDINAL
 		)
 		public void displayHelp() {
 			System.out.printf("Usage: %s [OPTION]... [FILE]%n", 
@@ -82,20 +75,20 @@ public enum Base64Transformer {
 			System.out.printf("Base64 encode or decode FILE, or standard "
 					+ "input, to standard output.%n%n");
 			System.out.println("OPTIONS:");
-			this.options.printHelpText();
+			this.optionGroups.printHelpText();
 			System.out.printf("%n%nWith no FILE, or when FILE is -, read "
 					+ "standard input.%n");
 			this.programHelpDisplayed = true;
 		}
-		
-		@OptionOccurrenceSink(
-				optionBuilder = @OptionBuilder(
+				
+		@OptionGroup(
+				option = @Option(
 						doc = "display version information and exit",
-						name = "version", 
-						ordinal = VERSION_OPTION_ORDINAL,
+						name = "version",
 						special = true,
 						type = GnuLongOption.class 
-				)
+				), 
+				ordinal = VERSION_OPTION_GROUP_ORDINAL
 		)
 		public void displayVersion() {
 			System.out.printf("%s %s%n", this.programName, this.programVersion);
@@ -103,18 +96,17 @@ public enum Base64Transformer {
 		}
 		
 		public int process(final String[] args) {
-			Option helpOption = this.options.toList().get(
-					HELP_OPTION_ORDINAL);
+			this.argsHandler = ArgsHandler.newInstance(args, this, false);
+			this.optionGroups = this.argsHandler.getOptionGroups();
+			ArgMatey.Option helpOption = this.optionGroups.toList().get(
+					HELP_OPTION_GROUP_ORDINAL).toList().get(0);
 			String suggestion = String.format(
 					"Try '%s %s' for more information.", 
 					this.programName, 
 					helpOption.getUsage());
-			this.argsParser = ArgsParser.newInstance(args, this.options, false);
-			while (this.argsParser.hasNext()) {
+			while (this.argsHandler.hasNext()) {
 				try {
-					ParseResultHolder parseResultHolder = 
-							this.argsParser.parseNext();
-					this.parseResultSinkObject.send(parseResultHolder);
+					this.argsHandler.handleNext();
 				} catch (Throwable t) {
 					System.err.printf("%s: %s%n", this.programName, t);
 					System.err.println(suggestion);
@@ -128,21 +120,21 @@ public enum Base64Transformer {
 			return this.transform();
 		}
 		
-		@OptionOccurrenceSink(
-				optionBuilder = @OptionBuilder(
+		@OptionGroup(
+				option = @Option(
 						doc = "wrap encoded lines after COLS character "
 								+ "(default 76)." 
 								+ "\r\n      Use 0 to disable line wrapping",
 						name = "w",
-						optionArgSpecBuilder = @OptionArgSpecBuilder(
+						optionArgSpec = @OptionArgSpec(
 								name = "COLS",
 								stringConverter = NonnegativeIntegerStringConverter.class
-						), 
-						ordinal = WRAP_OPTION_ORDINAL,
+						),
 						type = PosixOption.class 
-				),
-				otherOptionBuilders = {
-						@OptionBuilder(
+				), 
+				ordinal = WRAP_OPTION_GROUP_ORDINAL,
+				otherOptions = {
+						@Option(
 								name = "wrap",
 								type = GnuLongOption.class
 						)
@@ -152,15 +144,15 @@ public enum Base64Transformer {
 			this.columnLimit = colLimit;
 		}
 		
-		@OptionOccurrenceSink(
-				optionBuilder = @OptionBuilder(
+		@OptionGroup(
+				option = @Option(
 						doc = "decode data",
-						name = "d", 
-						ordinal = DECODE_OPTION_ORDINAL,
+						name = "d",
 						type = PosixOption.class 
-				),
-				otherOptionBuilders = {
-						@OptionBuilder(
+				), 
+				ordinal = DECODE_OPTION_GROUP_ORDINAL,
+				otherOptions = {
+						@Option(
 								name = "decode",
 								type = GnuLongOption.class
 						)
@@ -170,7 +162,7 @@ public enum Base64Transformer {
 			this.decodingMode = b;
 		}
 		
-		@NonparsedArgSink
+		@NonparsedArg
 		public void setFile(final String f) {
 			if (this.file != null) {
 				throw new IllegalArgumentException(String.format(
@@ -178,16 +170,16 @@ public enum Base64Transformer {
 			}
 			this.file = f;
 		}
-
-		@OptionOccurrenceSink(
-				optionBuilder = @OptionBuilder(
+		
+		@OptionGroup(
+				option = @Option(
 						doc = "when decoding, ignore non-alphabet characters",
-						name = "i", 
-						ordinal = IGNORE_GARBAGE_OPTION_ORDINAL,
+						name = "i",
 						type = PosixOption.class 
-				),
-				otherOptionBuilders = {
-						@OptionBuilder(
+				), 
+				ordinal = IGNORE_GARBAGE_OPTION_GROUP_ORDINAL,
+				otherOptions = {
+						@Option(
 								name = "ignore-garbage",
 								type = GnuLongOption.class
 						)
