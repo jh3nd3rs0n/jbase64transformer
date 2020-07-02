@@ -98,8 +98,8 @@ public enum Base64Transformer {
 		public int process(final String[] args) {
 			this.argsHandler = ArgsHandler.newInstance(args, this, false);
 			this.optionGroups = this.argsHandler.getOptionGroups();
-			ArgMatey.Option helpOption = this.optionGroups.toList().get(
-					HELP_OPTION_GROUP_ORDINAL).toList().get(0);
+			ArgMatey.Option helpOption = this.optionGroups.get(
+					HELP_OPTION_GROUP_ORDINAL).get(0);
 			String suggestion = String.format(
 					"Try '%s %s' for more information.", 
 					this.programName, 
