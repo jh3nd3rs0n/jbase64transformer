@@ -65,10 +65,11 @@ public enum Base64Transformer {
 					this.programName);
 			System.out.printf("Base64 encode or decode FILE, or standard "
 					+ "input, to standard output.%n%n");
+			System.out.printf("With no FILE, or when FILE is -, read standard "
+					+ "input.%n%n");
 			System.out.println("OPTIONS:");
 			this.getOptionGroups().printHelpText();
-			System.out.printf("%nWith no FILE, or when FILE is -, read "
-					+ "standard input.%n");
+			System.out.printf("%n");
 			this.programHelpDisplayed = true;
 		}
 				
@@ -87,7 +88,7 @@ public enum Base64Transformer {
 			this.programVersionDisplayed = true;
 		}
 		
-		public int execute() {
+		public int handleRemaining() {
 			ArgMatey.Option helpOption = this.getOptionGroups().get(
 					HELP_OPTION_GROUP_ORDINAL).get(0);
 			String suggestion = String.format(
@@ -266,7 +267,7 @@ public enum Base64Transformer {
 	
 	public static void main(final String[] args) {
 		CLI cli = new CLI(args, false);
-		int status = cli.execute();
+		int status = cli.handleRemaining();
 		if (status != 0) { System.exit(status);	}
 	}
 	

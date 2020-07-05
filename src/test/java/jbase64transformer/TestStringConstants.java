@@ -25,6 +25,8 @@ public final class TestStringConstants {
 		sb.append(String.format("Usage: jbase64transformer.Base64Transformer [OPTION]... [FILE]%n"));
 		sb.append(String.format("Base64 encode or decode FILE, or standard input, to standard output.%n"));
 		sb.append(String.format("%n"));
+		sb.append(String.format("With no FILE, or when FILE is -, read standard input.%n"));
+		sb.append(String.format("%n"));
 		sb.append(String.format("OPTIONS:%n"));
 		sb.append(String.format("  -d, --decode%n"));
 		sb.append(String.format("      decode data%n"));
@@ -38,7 +40,6 @@ public final class TestStringConstants {
 		sb.append(String.format("  --version%n"));
 		sb.append(String.format("      display version information and exit%n"));
 		sb.append(String.format("%n"));
-		sb.append(String.format("With no FILE, or when FILE is -, read standard input.%n"));
 		HELP_INFO_STRING = sb.toString();
 	}
 	

@@ -50,6 +50,8 @@ Be sure to remove or replace the following:
     Usage: jbase64transformer.Base64Transformer [OPTION]... [FILE]
     Base64 encode or decode FILE, or standard input, to standard output.
     
+    With no FILE, or when FILE is -, read standard input.
+        
     OPTIONS:
       -d, --decode
           decode data
@@ -62,7 +64,6 @@ Be sure to remove or replace the following:
           display this help and exit
       --version
           display version information and exit
-    
-    With no FILE, or when FILE is -, read standard input.
+
 
 ```
