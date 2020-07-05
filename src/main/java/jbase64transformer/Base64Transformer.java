@@ -18,9 +18,7 @@ import argmatey.ArgMatey.Annotations.NonparsedArg;
 import argmatey.ArgMatey.Annotations.Option;
 import argmatey.ArgMatey.Annotations.OptionArgSpec;
 import argmatey.ArgMatey.Annotations.OptionGroup;
-import argmatey.ArgMatey.ArgsHandler;
 import argmatey.ArgMatey.GnuLongOption;
-import argmatey.ArgMatey.OptionGroups;
 import argmatey.ArgMatey.PosixOption;
 import argmatey.ArgMatey.StringConverter;
 
@@ -28,7 +26,7 @@ public enum Base64Transformer {
 	
 	INSTANCE;
 	
-	public static final class Cli {
+	public static final class CLI extends ArgMatey.CLI {
 		
 		private static final int DECODE_OPTION_GROUP_ORDINAL = 0;
 		private static final int IGNORE_GARBAGE_OPTION_GROUP_ORDINAL = 1;
@@ -36,30 +34,22 @@ public enum Base64Transformer {
 		private static final int HELP_OPTION_GROUP_ORDINAL = 3;
 		private static final int VERSION_OPTION_GROUP_ORDINAL = 4;
 		
-		private ArgsHandler argsHandler;
 		private int columnLimit;
 		private boolean decodingMode;
 		private String file;
 		private boolean garbageIgnored;
-		private OptionGroups optionGroups;
-		private boolean programHelpDisplayed;		
 		private final String programName;
 		private final String programVersion;
-		private boolean programVersionDisplayed;
 		
-		Cli() {
-			this.argsHandler = null;
+		CLI(final String[] args, final boolean posixlyCorrect) {
+			super(args, posixlyCorrect);
 			this.columnLimit = 76;
 			this.decodingMode = false;
 			this.file = null;
 			this.garbageIgnored = false;
-			this.optionGroups = null;
-			this.programHelpDisplayed = false;
 			this.programName = Base64Transformer.class.getName();
 			this.programVersion = "1.0";
-			this.programVersionDisplayed = false;
 		}
-		
 		 
 		@OptionGroup(
 				option = @Option(
@@ -69,14 +59,15 @@ public enum Base64Transformer {
 						type = GnuLongOption.class),
 				ordinal = HELP_OPTION_GROUP_ORDINAL
 		)
-		public void displayHelp() {
+		@Override
+		public void displayProgramHelp() {
 			System.out.printf("Usage: %s [OPTION]... [FILE]%n", 
 					this.programName);
 			System.out.printf("Base64 encode or decode FILE, or standard "
 					+ "input, to standard output.%n%n");
 			System.out.println("OPTIONS:");
-			this.optionGroups.printHelpText();
-			System.out.printf("%n%nWith no FILE, or when FILE is -, read "
+			this.getOptionGroups().printHelpText();
+			System.out.printf("%nWith no FILE, or when FILE is -, read "
 					+ "standard input.%n");
 			this.programHelpDisplayed = true;
 		}
@@ -90,23 +81,22 @@ public enum Base64Transformer {
 				), 
 				ordinal = VERSION_OPTION_GROUP_ORDINAL
 		)
-		public void displayVersion() {
+		@Override
+		public void displayProgramVersion() {
 			System.out.printf("%s %s%n", this.programName, this.programVersion);
 			this.programVersionDisplayed = true;
 		}
 		
-		public int process(final String[] args) {
-			this.argsHandler = ArgsHandler.newInstance(args, this, false);
-			this.optionGroups = this.argsHandler.getOptionGroups();
-			ArgMatey.Option helpOption = this.optionGroups.get(
+		public int execute() {
+			ArgMatey.Option helpOption = this.getOptionGroups().get(
 					HELP_OPTION_GROUP_ORDINAL).get(0);
 			String suggestion = String.format(
 					"Try '%s %s' for more information.", 
 					this.programName, 
 					helpOption.getUsage());
-			while (this.argsHandler.hasNext()) {
+			while (this.hasNext()) {
 				try {
-					this.argsHandler.handleNext();
+					this.handleNext();
 				} catch (Throwable t) {
 					System.err.printf("%s: %s%n", this.programName, t);
 					System.err.println(suggestion);
@@ -275,8 +265,8 @@ public enum Base64Transformer {
 	}
 	
 	public static void main(final String[] args) {
-		Cli cli = new Cli();
-		int status = cli.process(args);
+		CLI cli = new CLI(args, false);
+		int status = cli.execute();
 		if (status != 0) { System.exit(status);	}
 	}
 	
