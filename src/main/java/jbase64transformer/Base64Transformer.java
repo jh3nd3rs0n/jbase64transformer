@@ -55,8 +55,8 @@ public enum Base64Transformer {
 				option = @Option(
 						doc = "display this help and exit",
 						name = "help", 
-						special = true,
-						type = GnuLongOption.class),
+						type = GnuLongOption.class
+				),
 				ordinal = HELP_OPTION_GROUP_ORDINAL
 		)
 		@Override
@@ -77,7 +77,6 @@ public enum Base64Transformer {
 				option = @Option(
 						doc = "display version information and exit",
 						name = "version",
-						special = true,
 						type = GnuLongOption.class 
 				), 
 				ordinal = VERSION_OPTION_GROUP_ORDINAL
