@@ -38,8 +38,6 @@ public enum Base64Transformer {
 		private boolean decodingMode;
 		private String file;
 		private boolean garbageIgnored;
-		private final String programName;
-		private final String programVersion;
 		
 		CLI(final String[] args, final boolean posixlyCorrect) {
 			super(args, posixlyCorrect);
