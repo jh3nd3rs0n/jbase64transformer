@@ -17,7 +17,7 @@ import argmatey.ArgMatey;
 import argmatey.ArgMatey.Annotations.NonparsedArg;
 import argmatey.ArgMatey.Annotations.Option;
 import argmatey.ArgMatey.Annotations.OptionArgSpec;
-import argmatey.ArgMatey.Annotations.OptionGroup;
+import argmatey.ArgMatey.Annotations.Ordinal;
 import argmatey.ArgMatey.GnuLongOption;
 import argmatey.ArgMatey.PosixOption;
 import argmatey.ArgMatey.StringConverter;
@@ -49,14 +49,12 @@ public enum Base64Transformer {
 			this.programVersion = "1.0";
 		}
 		 
-		@OptionGroup(
-				option = @Option(
-						doc = "display this help and exit",
-						name = "help", 
-						type = GnuLongOption.class
-				),
-				ordinal = HELP_OPTION_GROUP_ORDINAL
+		@Option(
+				doc = "display this help and exit",
+				name = "help", 
+				type = GnuLongOption.class
 		)
+		@Ordinal(HELP_OPTION_GROUP_ORDINAL)
 		@Override
 		public void displayProgramHelp() {
 			System.out.printf("Usage: %s [OPTION]... [FILE]%n", 
@@ -71,14 +69,12 @@ public enum Base64Transformer {
 			this.programHelpDisplayed = true;
 		}
 				
-		@OptionGroup(
-				option = @Option(
-						doc = "display version information and exit",
-						name = "version",
-						type = GnuLongOption.class 
-				), 
-				ordinal = VERSION_OPTION_GROUP_ORDINAL
+		@Option(
+				doc = "display version information and exit",
+				name = "version",
+				type = GnuLongOption.class 
 		)
+		@Ordinal(VERSION_OPTION_GROUP_ORDINAL)
 		@Override
 		public void displayProgramVersion() {
 			System.out.printf("%s %s%n", this.programName, this.programVersion);
@@ -108,44 +104,36 @@ public enum Base64Transformer {
 			return this.transform();
 		}
 		
-		@OptionGroup(
-				option = @Option(
-						doc = "wrap encoded lines after COLS character "
-								+ "(default 76)." 
-								+ "\r\n      Use 0 to disable line wrapping",
-						name = "w",
-						optionArgSpec = @OptionArgSpec(
-								name = "COLS",
-								stringConverter = NonnegativeIntegerStringConverter.class
-						),
-						type = PosixOption.class 
-				), 
-				ordinal = WRAP_OPTION_GROUP_ORDINAL,
-				otherOptions = {
-						@Option(
-								name = "wrap",
-								type = GnuLongOption.class
-						)
-				}
+		@Option(
+				doc = "wrap encoded lines after COLS character "
+						+ "(default 76)." 
+						+ "\r\n      Use 0 to disable line wrapping",
+				name = "w",
+				optionArgSpec = @OptionArgSpec(
+						name = "COLS",
+						stringConverter = NonnegativeIntegerStringConverter.class
+				),
+				type = PosixOption.class 
 		)
+		@Option(
+				name = "wrap",
+				type = GnuLongOption.class
+		)
+		@Ordinal(WRAP_OPTION_GROUP_ORDINAL)
 		public void setColumnLimit(final int colLimit) {
 			this.columnLimit = colLimit;
 		}
 		
-		@OptionGroup(
-				option = @Option(
-						doc = "decode data",
-						name = "d",
-						type = PosixOption.class 
-				), 
-				ordinal = DECODE_OPTION_GROUP_ORDINAL,
-				otherOptions = {
-						@Option(
-								name = "decode",
-								type = GnuLongOption.class
-						)
-				}
+		@Option(
+				doc = "decode data",
+				name = "d",
+				type = PosixOption.class 
 		)
+		@Option(
+				name = "decode",
+				type = GnuLongOption.class
+		)
+		@Ordinal(DECODE_OPTION_GROUP_ORDINAL)
 		public void setDecodingMode(final boolean b) {
 			this.decodingMode = b;
 		}
@@ -159,20 +147,16 @@ public enum Base64Transformer {
 			this.file = f;
 		}
 		
-		@OptionGroup(
-				option = @Option(
-						doc = "when decoding, ignore non-alphabet characters",
-						name = "i",
-						type = PosixOption.class 
-				), 
-				ordinal = IGNORE_GARBAGE_OPTION_GROUP_ORDINAL,
-				otherOptions = {
-						@Option(
-								name = "ignore-garbage",
-								type = GnuLongOption.class
-						)
-				}
+		@Option(
+				doc = "when decoding, ignore non-alphabet characters",
+				name = "i",
+				type = PosixOption.class 
 		)
+		@Option(
+				name = "ignore-garbage",
+				type = GnuLongOption.class
+		)
+		@Ordinal(IGNORE_GARBAGE_OPTION_GROUP_ORDINAL)
 		public void setGarbageIgnored(final boolean b) {
 			this.garbageIgnored = b;
 		}
