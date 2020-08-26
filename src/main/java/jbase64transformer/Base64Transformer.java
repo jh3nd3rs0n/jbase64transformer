@@ -18,8 +18,7 @@ import argmatey.ArgMatey.Annotations.NonparsedArg;
 import argmatey.ArgMatey.Annotations.Option;
 import argmatey.ArgMatey.Annotations.OptionArgSpec;
 import argmatey.ArgMatey.Annotations.Ordinal;
-import argmatey.ArgMatey.GnuLongOption;
-import argmatey.ArgMatey.PosixOption;
+import argmatey.ArgMatey.OptionType;
 import argmatey.ArgMatey.StringConverter;
 
 public enum Base64Transformer {
@@ -52,7 +51,7 @@ public enum Base64Transformer {
 		@Option(
 				doc = "display this help and exit",
 				name = "help", 
-				type = GnuLongOption.class
+				type = OptionType.GNU_LONG
 		)
 		@Ordinal(HELP_OPTION_GROUP_ORDINAL)
 		@Override
@@ -72,7 +71,7 @@ public enum Base64Transformer {
 		@Option(
 				doc = "display version information and exit",
 				name = "version",
-				type = GnuLongOption.class 
+				type = OptionType.GNU_LONG 
 		)
 		@Ordinal(VERSION_OPTION_GROUP_ORDINAL)
 		@Override
@@ -113,11 +112,11 @@ public enum Base64Transformer {
 						name = "COLS",
 						stringConverter = NonnegativeIntegerStringConverter.class
 				),
-				type = PosixOption.class 
+				type = OptionType.POSIX 
 		)
 		@Option(
 				name = "wrap",
-				type = GnuLongOption.class
+				type = OptionType.GNU_LONG
 		)
 		@Ordinal(WRAP_OPTION_GROUP_ORDINAL)
 		public void setColumnLimit(final int colLimit) {
@@ -127,11 +126,11 @@ public enum Base64Transformer {
 		@Option(
 				doc = "decode data",
 				name = "d",
-				type = PosixOption.class 
+				type = OptionType.POSIX 
 		)
 		@Option(
 				name = "decode",
-				type = GnuLongOption.class
+				type = OptionType.GNU_LONG
 		)
 		@Ordinal(DECODE_OPTION_GROUP_ORDINAL)
 		public void setDecodingMode(final boolean b) {
@@ -150,11 +149,11 @@ public enum Base64Transformer {
 		@Option(
 				doc = "when decoding, ignore non-alphabet characters",
 				name = "i",
-				type = PosixOption.class 
+				type = OptionType.POSIX 
 		)
 		@Option(
 				name = "ignore-garbage",
-				type = GnuLongOption.class
+				type = OptionType.GNU_LONG
 		)
 		@Ordinal(IGNORE_GARBAGE_OPTION_GROUP_ORDINAL)
 		public void setGarbageIgnored(final boolean b) {
