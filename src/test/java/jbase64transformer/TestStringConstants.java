@@ -33,7 +33,7 @@ public final class TestStringConstants {
 		sb.append(String.format("  -i, --ignore-garbage%n"));
 		sb.append(String.format("      when decoding, ignore non-alphabet characters%n"));
 		sb.append(String.format("  -w COLS, --wrap=COLS%n"));
-		sb.append(String.format("      wrap encoded lines after COLS character (default 76).\r\n"));
+		sb.append(String.format("      wrap encoded lines after COLS character (default 76).%n"));
 		sb.append(String.format("      Use 0 to disable line wrapping%n"));
 		sb.append(String.format("  --help%n"));
 		sb.append(String.format("      display this help and exit%n"));

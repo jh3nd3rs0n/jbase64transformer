@@ -104,9 +104,8 @@ public enum Base64Transformer {
 		}
 		
 		@Option(
-				doc = "wrap encoded lines after COLS character "
-						+ "(default 76)." 
-						+ "\r\n      Use 0 to disable line wrapping",
+				doc = "wrap encoded lines after COLS character (default 76)."
+						+ "${line.separator}      Use 0 to disable line wrapping",
 				name = "w",
 				optionArgSpec = @OptionArgSpec(
 						name = "COLS",
