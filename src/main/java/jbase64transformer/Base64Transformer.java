@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.Base64;
 
 import argmatey.ArgMatey;
-import argmatey.ArgMatey.Annotations.NonparsedArg;
 import argmatey.ArgMatey.Annotations.Option;
 import argmatey.ArgMatey.Annotations.OptionArgSpec;
 import argmatey.ArgMatey.Annotations.Ordinal;
@@ -80,6 +79,15 @@ public enum Base64Transformer {
 			this.programVersionDisplayed = true;
 		}
 		
+		@Override
+		protected void handleNonparsedArg(final String nonparsedArg) {
+			if (this.file != null) {
+				throw new IllegalArgumentException(String.format(
+						"extra operand '%s'", nonparsedArg));
+			}
+			this.file = nonparsedArg;
+		}
+		
 		public int handleRemaining() {
 			ArgMatey.Option helpOption = this.getOptionGroups().get(
 					HELP_OPTION_GROUP_ORDINAL).get(0);
@@ -134,15 +142,6 @@ public enum Base64Transformer {
 		@Ordinal(DECODE_OPTION_GROUP_ORDINAL)
 		public void setDecodingMode(final boolean b) {
 			this.decodingMode = b;
-		}
-		
-		@NonparsedArg
-		public void setFile(final String f) {
-			if (this.file != null) {
-				throw new IllegalArgumentException(String.format(
-						"extra operand '%s'", f));
-			}
-			this.file = f;
 		}
 		
 		@Option(
