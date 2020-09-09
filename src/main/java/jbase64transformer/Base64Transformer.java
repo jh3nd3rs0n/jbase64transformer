@@ -54,7 +54,7 @@ public enum Base64Transformer {
 		)
 		@Ordinal(HELP_OPTION_GROUP_ORDINAL)
 		@Override
-		public void displayProgramHelp() {
+		protected void displayProgramHelp() {
 			System.out.printf("Usage: %s [OPTION]... [FILE]%n", 
 					this.programName);
 			System.out.printf("Base64 encode or decode FILE, or standard "
@@ -74,7 +74,7 @@ public enum Base64Transformer {
 		)
 		@Ordinal(VERSION_OPTION_GROUP_ORDINAL)
 		@Override
-		public void displayProgramVersion() {
+		protected void displayProgramVersion() {
 			System.out.printf("%s %s%n", this.programName, this.programVersion);
 			this.programVersionDisplayed = true;
 		}
@@ -88,6 +88,7 @@ public enum Base64Transformer {
 			this.file = nonparsedArg;
 		}
 		
+		@Override
 		public int handleRemaining() {
 			ArgMatey.Option helpOption = this.getOptionGroups().get(
 					HELP_OPTION_GROUP_ORDINAL).get(0);
@@ -126,7 +127,7 @@ public enum Base64Transformer {
 				type = OptionType.GNU_LONG
 		)
 		@Ordinal(WRAP_OPTION_GROUP_ORDINAL)
-		public void setColumnLimit(final int colLimit) {
+		private void setColumnLimit(final int colLimit) {
 			this.columnLimit = colLimit;
 		}
 		
@@ -140,7 +141,7 @@ public enum Base64Transformer {
 				type = OptionType.GNU_LONG
 		)
 		@Ordinal(DECODE_OPTION_GROUP_ORDINAL)
-		public void setDecodingMode(final boolean b) {
+		private void setDecodingMode(final boolean b) {
 			this.decodingMode = b;
 		}
 		
@@ -154,7 +155,7 @@ public enum Base64Transformer {
 				type = OptionType.GNU_LONG
 		)
 		@Ordinal(IGNORE_GARBAGE_OPTION_GROUP_ORDINAL)
-		public void setGarbageIgnored(final boolean b) {
+		private void setGarbageIgnored(final boolean b) {
 			this.garbageIgnored = b;
 		}
 		
