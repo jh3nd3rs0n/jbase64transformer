@@ -24,7 +24,7 @@ public enum Base64Transformer {
 	
 	INSTANCE;
 	
-	public static final class CLI extends ArgMatey.CLI {
+	static final class CLI extends ArgMatey.CLI {
 		
 		private static final int DECODE_OPTION_GROUP_ORDINAL = 0;
 		private static final int IGNORE_GARBAGE_OPTION_GROUP_ORDINAL = 1;
@@ -54,7 +54,7 @@ public enum Base64Transformer {
 		)
 		@Ordinal(HELP_OPTION_GROUP_ORDINAL)
 		@Override
-		protected void displayProgramHelp() {
+		public void displayProgramHelp() {
 			System.out.printf("Usage: %s [OPTION]... [FILE]%n", 
 					this.programName);
 			System.out.printf("Base64 encode or decode FILE, or standard "
@@ -74,7 +74,7 @@ public enum Base64Transformer {
 		)
 		@Ordinal(VERSION_OPTION_GROUP_ORDINAL)
 		@Override
-		protected void displayProgramVersion() {
+		public void displayProgramVersion() {
 			System.out.printf("%s %s%n", this.programName, this.programVersion);
 			this.programVersionDisplayed = true;
 		}
@@ -218,10 +218,8 @@ public enum Base64Transformer {
 		
 	}
 	
-	public static final class NonnegativeIntegerStringConverter 
+	private static final class NonnegativeIntegerStringConverter 
 		extends StringConverter {
-
-		public NonnegativeIntegerStringConverter() { }
 		
 		@Override
 		public Object convert(final String string) {
