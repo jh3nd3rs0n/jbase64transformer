@@ -11,6 +11,8 @@ import java.io.PrintStream;
 
 import org.junit.Test;
 
+import argmatey.ArgMatey.CLI;
+
 public class Base64TransformerCLITest {
 
 	private static int handle(
@@ -21,13 +23,13 @@ public class Base64TransformerCLITest {
 		PrintStream formerErr = System.err;
 		InputStream formerIn = System.in;
 		PrintStream formerOut = System.out;
-		Base64Transformer.CLI cli = new Base64Transformer.CLI(args, false);
 		if (err != null) { System.setErr(err); }
 		if (out != null) { System.setOut(out); }
-		if (in != null) { System.setIn(in); } 
+		if (in != null) { System.setIn(in); }
+		CLI cli = new Base64Transformer.CLI(args, false);
 		int status;
 		try {
-			status = cli.handleRemaining();
+			status = cli.handleArgs();
 		} finally {
 			if (err != null) { System.setErr(formerErr); }
 			if (out != null) { System.setOut(formerOut); }

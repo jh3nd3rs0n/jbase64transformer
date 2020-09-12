@@ -54,7 +54,7 @@ public enum Base64Transformer {
 		)
 		@Ordinal(HELP_OPTION_GROUP_ORDINAL)
 		@Override
-		public void displayProgramHelp() {
+		protected void displayProgramHelp() {
 			System.out.printf("Usage: %s [OPTION]... [FILE]%n", 
 					this.programName);
 			System.out.printf("Base64 encode or decode FILE, or standard "
@@ -74,22 +74,13 @@ public enum Base64Transformer {
 		)
 		@Ordinal(VERSION_OPTION_GROUP_ORDINAL)
 		@Override
-		public void displayProgramVersion() {
+		protected void displayProgramVersion() {
 			System.out.printf("%s %s%n", this.programName, this.programVersion);
 			this.programVersionDisplayed = true;
 		}
 		
 		@Override
-		protected void handleNonparsedArg(final String nonparsedArg) {
-			if (this.file != null) {
-				throw new IllegalArgumentException(String.format(
-						"extra operand '%s'", nonparsedArg));
-			}
-			this.file = nonparsedArg;
-		}
-		
-		@Override
-		public int handleRemaining() {
+		public int handleArgs() {
 			ArgMatey.Option helpOption = this.getOptionGroups().get(
 					HELP_OPTION_GROUP_ORDINAL).get(0);
 			String suggestion = String.format(
@@ -110,6 +101,15 @@ public enum Base64Transformer {
 				}
 			}
 			return this.transform();
+		}
+		
+		@Override
+		protected void handleNonparsedArg(final String nonparsedArg) {
+			if (this.file != null) {
+				throw new IllegalArgumentException(String.format(
+						"extra operand '%s'", nonparsedArg));
+			}
+			this.file = nonparsedArg;
 		}
 		
 		@Option(
@@ -243,8 +243,8 @@ public enum Base64Transformer {
 	}
 	
 	public static void main(final String[] args) {
-		CLI cli = new CLI(args, false);
-		int status = cli.handleRemaining();
+		ArgMatey.CLI cli = new CLI(args, false);
+		int status = cli.handleArgs();
 		if (status != 0) { System.exit(status);	}
 	}
 	
