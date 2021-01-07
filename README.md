@@ -13,8 +13,14 @@ JBase64Transformer is a Java implementation of GNU's command line utility base64
 
 ## Requirements
 
+For building:
+
 -   Apache Maven&#8482; 3.3.9 or higher
 -   Java&#8482; SDK 1.8 or higher
+
+For running JBase64Transformer
+
+-   Java&#8482; Runtime Environment 1.8 or higher
 
 ## Building
 
