@@ -1,6 +1,6 @@
 # JBase64Transformer
 
-[![Total alerts](https://img.shields.io/lgtm/alerts/g/jh3nd3rs0n/jbase64transformer.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/jh3nd3rs0n/jbase64transformer/alerts/) [![Language grade: Java](https://img.shields.io/lgtm/grade/java/g/jh3nd3rs0n/jbase64transformer.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/jh3nd3rs0n/jbase64transformer/context:java) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/f7ae0256ad1a400bb5811e9327e0b674)](https://www.codacy.com/manual/jh3nd3rs0n/jbase64transformer?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=jh3nd3rs0n/jbase64transformer&amp;utm_campaign=Badge_Grade)
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/jh3nd3rs0n/jbase64transformer.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/jh3nd3rs0n/jbase64transformer/alerts/) [![Language grade: Java](https://img.shields.io/lgtm/grade/java/g/jh3nd3rs0n/jbase64transformer.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/jh3nd3rs0n/jbase64transformer/context:java) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/022a9623cb904e33bce041079b879329)](https://www.codacy.com/gh/jh3nd3rs0n/jbase64transformer/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=jh3nd3rs0n/jbase64transformer&amp;utm_campaign=Badge_Grade)
 
 JBase64Transformer is a Java implementation of GNU's command line utility base64 and an example of using ArgMatey.
 
