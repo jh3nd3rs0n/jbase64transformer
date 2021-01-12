@@ -7,13 +7,14 @@ JBase64Transformer is a Java implementation of GNU's command line utility base64
 ## Contents
 
 -   [Requirements](#requirements)
+-   [Automated Testing](#automated-testing)
 -   [Building](#building)
 -   [Running JBase64Transformer](#running-jbase64transformer)
 -   [Usage](#usage)
 
 ## Requirements
 
-For building:
+For automated testing and building:
 
 -   Apache Maven&#8482; 3.3.9 or higher
 -   Java&#8482; SDK 1.8 or higher
@@ -22,14 +23,24 @@ For running JBase64Transformer
 
 -   Java&#8482; Runtime Environment 1.8 or higher
 
-## Building
+## Automated Testing
 
-To build and package JBase64Transformer as an executable jar file, run the following commands:
+To run automated testing, run the following commands:
 
 ```bash
 
     cd jbase64transformer
-    mvn package
+    mvn clean test
+
+```
+
+## Building
+
+To build and package JBase64Transformer as an executable jar file, run the following command:
+
+```bash
+
+    mvn clean package
 
 ```
 
