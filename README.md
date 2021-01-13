@@ -52,7 +52,7 @@ After running the aforementioned command, the executable jar file can be found i
     
 ```
 
-`${VERSION}` would be replaced by the actual version shown within the name of the executable jar file.
+`${VERSION}` is replaced by the actual version shown within the name of the executable jar file.
 
 ## Running JBase64Transformer 
 
