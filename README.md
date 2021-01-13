@@ -44,13 +44,23 @@ To build and package JBase64Transformer as an executable jar file, run the follo
 
 ```
 
+After running the aforementioned command, the executable jar file can be found in the following path:
+
+```text
+    
+    target/jbase64transformer-${VERSION}.jar
+    
+```
+
+`${VERSION}` would be replaced by the actual version shown within the name of the executable jar file.
+
 ## Running JBase64Transformer 
 
 To run JBase64Transformer, you can run the following command:
 
 ```bash
 
-    java -jar target/jbase64transformer-${VERSION}.jar [OPTION]... [FILE]
+    java -jar jbase64transformer-${VERSION}.jar [OPTION]... [FILE]
 
 ```
 
