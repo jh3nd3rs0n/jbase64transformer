@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>jbase64transformer</groupId>
 	<artifactId>jbase64transformer</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<name>JBase64Transformer</name>
 	<description>A Java implementation of GNU's command line utility base64 and an example of using ArgMatey</description>
 	<properties>
