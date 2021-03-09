@@ -37,7 +37,7 @@ public enum Base64Transformer {
 		private String file;
 		private boolean garbageIgnored;
 		
-		CLI(final String[] args, final boolean posixlyCorrect) {
+		public CLI(final String[] args, final boolean posixlyCorrect) {
 			super(args, posixlyCorrect);
 			this.columnLimit = 76;
 			this.decodingMode = false;
@@ -47,6 +47,11 @@ public enum Base64Transformer {
 			this.programVersion = "1.0";
 		}
 		 
+		@Override
+		protected int afterHandleArgs() {
+			return this.transform();
+		}
+		
 		@Option(
 				doc = "display this help and exit",
 				name = "help", 
@@ -55,18 +60,9 @@ public enum Base64Transformer {
 		@Ordinal(HELP_OPTION_GROUP_ORDINAL)
 		@Override
 		protected void displayProgramHelp() {
-			System.out.printf("Usage: %s [OPTION]... [FILE]%n", 
-					this.programName);
-			System.out.printf("Base64 encode or decode FILE, or standard "
-					+ "input, to standard output.%n%n");
-			System.out.printf("With no FILE, or when FILE is -, read standard "
-					+ "input.%n%n");
-			System.out.println("OPTIONS:");
-			this.getOptionGroups().printHelpText();
-			System.out.printf("%n");
-			this.programHelpDisplayed = true;
+			super.displayProgramHelp();
 		}
-				
+			
 		@Option(
 				doc = "display version information and exit",
 				name = "version",
@@ -75,32 +71,7 @@ public enum Base64Transformer {
 		@Ordinal(VERSION_OPTION_GROUP_ORDINAL)
 		@Override
 		protected void displayProgramVersion() {
-			System.out.printf("%s %s%n", this.programName, this.programVersion);
-			this.programVersionDisplayed = true;
-		}
-		
-		@Override
-		public int handleArgs() {
-			ArgMatey.Option helpOption = this.getOptionGroups().get(
-					HELP_OPTION_GROUP_ORDINAL).get(0);
-			String suggestion = String.format(
-					"Try '%s %s' for more information.", 
-					this.programName, 
-					helpOption.getUsage());
-			while (this.hasNext()) {
-				try {
-					this.handleNext();
-				} catch (Throwable t) {
-					System.err.printf("%s: %s%n", this.programName, t);
-					System.err.println(suggestion);
-					t.printStackTrace(System.err);
-					return -1;
-				}
-				if (this.programHelpDisplayed || this.programVersionDisplayed) {
-					return 0;
-				}
-			}
-			return this.transform();
+			super.displayProgramVersion();
 		}
 		
 		@Override
@@ -110,6 +81,38 @@ public enum Base64Transformer {
 						"extra operand '%s'", nonparsedArg));
 			}
 			this.file = nonparsedArg;
+		}
+		
+		@Override
+		protected int onHandleNextThrowable(final Throwable t) {
+			ArgMatey.Option helpOption = this.getOptionGroups().get(
+					HELP_OPTION_GROUP_ORDINAL).get(0);
+			String suggestion = String.format(
+					"Try '%s %s' for more information.", 
+					this.programName, 
+					helpOption.getUsage());
+			System.err.printf("%s: %s%n", this.programName, t);
+			System.err.println(suggestion);
+			t.printStackTrace(System.err);
+			return -1;
+		}
+		
+		@Override
+		protected void printProgramHelp() {
+			System.out.printf("Usage: %s [OPTION]... [FILE]%n", 
+					this.programName);
+			System.out.printf("Base64 encode or decode FILE, or standard "
+					+ "input, to standard output.%n%n");
+			System.out.printf("With no FILE, or when FILE is -, read standard "
+					+ "input.%n%n");
+			System.out.println("OPTIONS:");
+			this.getOptionGroups().printHelpText();
+			System.out.printf("%n");			
+		}
+		
+		@Override
+		protected void printProgramVersion() {
+			System.out.printf("%s %s%n", this.programName, this.programVersion);
 		}
 		
 		@Option(
