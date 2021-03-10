@@ -84,7 +84,7 @@ public enum Base64Transformer {
 		}
 		
 		@Override
-		protected int onHandleNextThrowable(final Throwable t) {
+		protected int handleThrowable(final Throwable t) {
 			ArgMatey.Option helpOption = this.getOptionGroups().get(
 					HELP_OPTION_GROUP_ORDINAL).get(0);
 			String suggestion = String.format(
