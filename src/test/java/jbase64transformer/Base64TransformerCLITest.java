@@ -8,6 +8,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.Optional;
 
 import org.junit.Test;
 
@@ -27,7 +28,7 @@ public class Base64TransformerCLITest {
 		if (out != null) { System.setOut(out); }
 		if (in != null) { System.setIn(in); }
 		CLI cli = new Base64Transformer.CLI(args, false);
-		int status;
+		Optional<Integer> status;
 		try {
 			status = cli.handleArgs();
 		} finally {
@@ -35,7 +36,7 @@ public class Base64TransformerCLITest {
 			if (out != null) { System.setOut(formerOut); }
 			if (in != null) { System.setIn(formerIn); }
 		}
-		return status;
+		return status.isPresent() ? status.get().intValue() : 0;
 	}
 	
 	@Test

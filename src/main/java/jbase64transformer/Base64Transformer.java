@@ -12,6 +12,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Optional;
 
 import argmatey.ArgMatey;
 import argmatey.ArgMatey.Annotations.Option;
@@ -48,8 +49,8 @@ public enum Base64Transformer {
 		}
 		 
 		@Override
-		protected int afterHandleArgs() {
-			return this.transform();
+		protected Optional<Integer> afterHandleArgs() {
+			return Optional.of(this.transform());
 		}
 		
 		@Option(
@@ -84,7 +85,7 @@ public enum Base64Transformer {
 		}
 		
 		@Override
-		protected int handleThrowable(final Throwable t) {
+		protected Optional<Integer> handleThrowable(final Throwable t) {
 			ArgMatey.Option helpOption = this.getOptionGroups().get(
 					HELP_OPTION_GROUP_ORDINAL).get(0);
 			String suggestion = String.format(
@@ -94,7 +95,7 @@ public enum Base64Transformer {
 			System.err.printf("%s: %s%n", this.programName, t);
 			System.err.println(suggestion);
 			t.printStackTrace(System.err);
-			return -1;
+			return Optional.of(Integer.valueOf(-1));
 		}
 		
 		@Override
@@ -247,8 +248,10 @@ public enum Base64Transformer {
 	
 	public static void main(final String[] args) {
 		ArgMatey.CLI cli = new CLI(args, false);
-		int status = cli.handleArgs();
-		if (status != 0) { System.exit(status);	}
+		Optional<Integer> status = cli.handleArgs();
+		if (status.isPresent()) { 
+			System.exit(status.get().intValue());
+		}
 	}
 	
 	public void decode(
