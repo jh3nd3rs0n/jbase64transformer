@@ -40,10 +40,6 @@ public enum Base64Transformer {
 		
 		public CLI(final String[] args, final boolean posixlyCorrect) {
 			super(args, posixlyCorrect);
-			this.columnLimit = 76;
-			this.decodingMode = false;
-			this.file = null;
-			this.garbageIgnored = false;
 			this.programName = Base64Transformer.class.getName();
 			this.programVersion = "1.0";
 		}
@@ -51,6 +47,15 @@ public enum Base64Transformer {
 		@Override
 		protected Optional<Integer> afterHandleArgs() {
 			return Optional.of(this.transform());
+		}
+		
+		@Override
+		protected Optional<Integer> beforeHandleArgs() {
+			this.columnLimit = 76;
+			this.decodingMode = false;
+			this.file = null;
+			this.garbageIgnored = false;
+			return Optional.empty();
 		}
 		
 		@Option(
