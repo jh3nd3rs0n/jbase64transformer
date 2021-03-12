@@ -249,7 +249,7 @@ public enum Base64Transformer {
 	public static void main(final String[] args) {
 		ArgMatey.CLI cli = new CLI(args, false);
 		Optional<Integer> status = cli.handleArgs();
-		if (status.isPresent()) { 
+		if (status.isPresent() && status.get().intValue() != 0) { 
 			System.exit(status.get().intValue());
 		}
 	}
