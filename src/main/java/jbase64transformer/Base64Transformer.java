@@ -15,8 +15,6 @@ import java.util.Base64;
 import java.util.Optional;
 
 import argmatey.ArgMatey;
-import argmatey.ArgMatey.Annotations.DisplaysProgramHelp;
-import argmatey.ArgMatey.Annotations.DisplaysProgramVersion;
 import argmatey.ArgMatey.Annotations.Option;
 import argmatey.ArgMatey.Annotations.OptionArgSpec;
 import argmatey.ArgMatey.Annotations.Ordinal;
@@ -60,7 +58,6 @@ public enum Base64Transformer {
 			return Optional.empty();
 		}
 
-		@DisplaysProgramHelp
 		@Option(
 				doc = "display this help and exit",
 				name = "help", 
@@ -80,7 +77,6 @@ public enum Base64Transformer {
 			System.out.printf("%n");
 		}
 			
-		@DisplaysProgramVersion
 		@Option(
 				doc = "display version information and exit",
 				name = "version",
