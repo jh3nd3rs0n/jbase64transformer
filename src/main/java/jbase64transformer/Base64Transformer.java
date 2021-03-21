@@ -15,6 +15,8 @@ import java.util.Base64;
 import java.util.Optional;
 
 import argmatey.ArgMatey;
+import argmatey.ArgMatey.Annotations.DisplaysProgramHelp;
+import argmatey.ArgMatey.Annotations.DisplaysProgramVersion;
 import argmatey.ArgMatey.Annotations.Option;
 import argmatey.ArgMatey.Annotations.OptionArgSpec;
 import argmatey.ArgMatey.Annotations.Ordinal;
@@ -57,7 +59,8 @@ public enum Base64Transformer {
 			this.garbageIgnored = false;
 			return Optional.empty();
 		}
-		
+
+		@DisplaysProgramHelp
 		@Option(
 				doc = "display this help and exit",
 				name = "help", 
@@ -66,9 +69,18 @@ public enum Base64Transformer {
 		@Ordinal(HELP_OPTION_GROUP_ORDINAL)
 		@Override
 		protected void displayProgramHelp() {
-			super.displayProgramHelp();
+			System.out.printf("Usage: %s [OPTION]... [FILE]%n", 
+					this.programName);
+			System.out.printf("Base64 encode or decode FILE, or standard "
+					+ "input, to standard output.%n%n");
+			System.out.printf("With no FILE, or when FILE is -, read standard "
+					+ "input.%n%n");
+			System.out.println("OPTIONS:");
+			this.getOptionGroups().printHelpText();
+			System.out.printf("%n");
 		}
 			
+		@DisplaysProgramVersion
 		@Option(
 				doc = "display version information and exit",
 				name = "version",
@@ -77,7 +89,7 @@ public enum Base64Transformer {
 		@Ordinal(VERSION_OPTION_GROUP_ORDINAL)
 		@Override
 		protected void displayProgramVersion() {
-			super.displayProgramVersion();
+			System.out.printf("%s %s%n", this.programName, this.programVersion);
 		}
 		
 		@Override
@@ -101,24 +113,6 @@ public enum Base64Transformer {
 			System.err.println(suggestion);
 			t.printStackTrace(System.err);
 			return Optional.of(Integer.valueOf(-1));
-		}
-		
-		@Override
-		protected void printProgramHelp() {
-			System.out.printf("Usage: %s [OPTION]... [FILE]%n", 
-					this.programName);
-			System.out.printf("Base64 encode or decode FILE, or standard "
-					+ "input, to standard output.%n%n");
-			System.out.printf("With no FILE, or when FILE is -, read standard "
-					+ "input.%n%n");
-			System.out.println("OPTIONS:");
-			this.getOptionGroups().printHelpText();
-			System.out.printf("%n");			
-		}
-		
-		@Override
-		protected void printProgramVersion() {
-			System.out.printf("%s %s%n", this.programName, this.programVersion);
 		}
 		
 		@Option(
